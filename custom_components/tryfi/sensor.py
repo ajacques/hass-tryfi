@@ -45,6 +45,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Activity Type"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Current Place Name"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Current Place Address"))
+        new_devices.append(PetGenericSensor(hass, pet, coordinator, "Connection State"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Connected To"))
         
 
@@ -179,8 +180,10 @@ class PetGenericSensor(CoordinatorEntity, Entity):
             return self.pet.getCurrPlaceName() or STATE_UNKNOWN
         elif self.statType == "Current Place Address":
             return self.pet.getCurrPlaceAddress() or STATE_UNKNOWN
-        elif self.statType == "Connected To":
+        elif self.statType == "Connection State":
             return self.pet.device.connectionStateType
+        elif self.statType == "Connected To":
+            return self.pet.connectedTo
 
     @property
     def unit_of_measurement(self):
