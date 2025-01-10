@@ -6,6 +6,7 @@ from homeassistant.const import (
     PERCENTAGE,
     STATE_OK,
     STATE_PROBLEM,
+    STATE_UNKNOWN,
     UnitOfLength,
     UnitOfTime
 )
@@ -173,13 +174,14 @@ class PetGenericSensor(CoordinatorEntity, Entity):
     @property
     def state(self):
         if self.statType == "Activity Type":
-            return self.pet.getActivityType()
+            return self.pet.getActivityType() or STATE_UNKNOWN
         elif self.statType == "Current Place Name":
-            return self.pet.getCurrPlaceName()
+            return self.pet.getCurrPlaceName() or STATE_UNKNOWN
         elif self.statType == "Current Place Address":
-            return self.pet.getCurrPlaceAddress()
+            return self.pet.getCurrPlaceAddress() or STATE_UNKNOWN
         elif self.statType == "Connected To":
             return self.pet.device.connectionStateType
+
     @property
     def unit_of_measurement(self):
         return None
