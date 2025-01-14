@@ -93,7 +93,7 @@ class TryFiPetLight(CoordinatorEntity, LightEntity):
 
     @property
     def name(self):
-        return f"{self.pet.name} - Collar Light"
+        return f"{self.pet.name} Collar Light"
 
     @property
     def petId(self):
