@@ -70,7 +70,9 @@ class TryFiBatteryChargingBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def isCharging(self):
-        return self.pet.device.isCharging or STATE_UNKNOWN
+        if self.pet.device.isCharging is None:
+            return STATE_UNKNOWN
+        return self.pet.device.isCharging
 
     @property
     def icon(self):

@@ -278,6 +278,13 @@ class PetStatsSensor(CoordinatorEntity, Entity):
                 return round(self.pet.weeklySleep / 60, 2)
             elif self.statTime.upper() == "MONTHLY":
                 return round(self.pet.monthlySleep / 60, 2)
+        elif self.statType.upper() == "GOAL":
+            if self.statTime.upper() == "DAILY":
+                return self.pet.dailyGoal
+            elif self.statTime.upper() == "WEEKLY":
+                return self.pet.weeklyGoal
+            elif self.statTime.upper() == "MONTHLY":
+                return self.pet.monthlyGoal
         else:
             return None
 
