@@ -6,7 +6,7 @@
     "documentation": "https://github.com/sbabcock23/hass-tryfi",
     "issue_tracker": "https://github.com/sbabcock23/hass-tryfi/issues",
     "requirements": [
-      "pytryfi>=0.0.21"
+      "git+https://github.com/ajacques/pytryfi.git@wip"
     ],
     "dependencies": [],
     "iot_class": "cloud_polling",
