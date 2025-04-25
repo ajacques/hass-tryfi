@@ -1,5 +1,7 @@
 import logging
 
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity
@@ -7,10 +9,14 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+from homeassistant.const import (
+    STATE_UNKNOWN,
+)
+
 
 LOGGER = logging.getLogger(__name__)
 
-async def async_setup_entry(hass, config_entry, async_add_devices):
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_devices):
     """Add binary sensors for passed config_entry in HA."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
@@ -26,7 +32,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 class TryFiBatteryChargingBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of a Binary Sensor."""
 
-    def __init__(self, hass, pet, coordinator):
+    def __init__(self, hass: HomeAssistant, pet: str, coordinator):
         self._hass = hass
         self._petId = pet.petId
         super().__init__(coordinator)
@@ -64,7 +70,9 @@ class TryFiBatteryChargingBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def isCharging(self):
-        return bool(self.pet.device.isCharging)
+        if self.pet.device.isCharging is None:
+            return STATE_UNKNOWN
+        return self.pet.device.isCharging
 
     @property
     def icon(self):
@@ -77,7 +85,7 @@ class TryFiBatteryChargingBinarySensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def is_on(self):
         """Return the state of the binary sensor"""
-        return self.isCharging
+        return self.pet.device.isCharging != None and self.pet.device.isCharging
 
     @property
     def device_info(self):

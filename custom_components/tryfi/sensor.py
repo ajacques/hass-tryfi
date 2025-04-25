@@ -4,7 +4,9 @@ import logging
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
     PERCENTAGE,
+    STATE_UNKNOWN,
     UnitOfLength,
+    UnitOfTemperature,
     UnitOfTime
 )
 from homeassistant.helpers.entity import Entity
@@ -38,7 +40,9 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Activity Type"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Current Place Name"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Current Place Address"))
+        new_devices.append(PetGenericSensor(hass, pet, coordinator, "Connection State"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Connected To"))
+        new_devices.append(PetGenericSensor(hass, pet, coordinator, "Temperature"))
         
 
     for base in tryfi.bases:
@@ -151,7 +155,10 @@ class PetGenericSensor(CoordinatorEntity, Entity):
     @property
     def device_class(self):
         """Return the device class of the sensor."""
-        return None
+        if self.statType.upper() == "TEMPERATURE":
+            return "temperature"
+        else:
+            return None
 
     @property
     def icon(self):
@@ -163,20 +170,30 @@ class PetGenericSensor(CoordinatorEntity, Entity):
             return "mdi:map-marker"
         elif self.statType == "Connected To":
             return "mdi:human-greeting-proximity"
+        elif self.statType == "Temperature":
+            return "mdi:thermometer-lines"
 
     @property
     def state(self):
         if self.statType == "Activity Type":
-            return self.pet.getActivityType()
+            return self.pet.getActivityType() or STATE_UNKNOWN
         elif self.statType == "Current Place Name":
-            return self.pet.getCurrPlaceName()
+            return self.pet.getCurrPlaceName() or STATE_UNKNOWN
         elif self.statType == "Current Place Address":
-            return self.pet.getCurrPlaceAddress()
-        elif self.statType == "Connected To":
+            return self.pet.getCurrPlaceAddress() or STATE_UNKNOWN
+        elif self.statType == "Connection State":
             return self.pet.device.connectionStateType
+        elif self.statType == "Connected To":
+            return self.pet.device.connectedTo
+        elif self.statType == "Temperature":
+            return self.device.temperature or STATE_UNKNOWN
+
     @property
     def unit_of_measurement(self):
-        return None
+        if self.statType.upper() == "TEMPERATURE":
+            return UnitOfTemperature.CELSIUS
+        else:
+            return None
 
     @property
     def device_info(self):
@@ -235,7 +252,10 @@ class PetStatsSensor(CoordinatorEntity, Entity):
     @property
     def device_class(self):
         """Return the device class of the sensor."""
-        return None
+        if self.statType.upper() == "DISTANCE":
+            return "distance"
+        else:
+            return None
 
     @property
     def icon(self):
@@ -243,34 +263,42 @@ class PetStatsSensor(CoordinatorEntity, Entity):
 
     @property
     def state(self):
-        if self.statType.upper() == "STEPS":
+        statType = self.statType.upper()
+        if statType == "STEPS":
             if self.statTime.upper() == "DAILY":
                 return self.pet.dailySteps
             elif self.statTime.upper() == "WEEKLY":
                 return self.pet.weeklySteps
             elif self.statTime.upper() == "MONTHLY":
                 return self.pet.monthlySteps
-        elif self.statType.upper() == "DISTANCE":
+        elif statType == "DISTANCE":
             if self.statTime.upper() == "DAILY":
                 return round(self.pet.dailyTotalDistance / 1000, 2)
             elif self.statTime.upper() == "WEEKLY":
                 return round(self.pet.weeklyTotalDistance / 1000, 2)
             elif self.statTime.upper() == "MONTHLY":
                 return round(self.pet.monthlyTotalDistance / 1000, 2)
-        elif self.statType.upper() == "NAP":
+        elif statType == "NAP":
             if self.statTime.upper() == "DAILY":
                 return round(self.pet.dailyNap / 60, 2)
             elif self.statTime.upper() == "WEEKLY":
                 return round(self.pet.weeklyNap / 60, 2)
             elif self.statTime.upper() == "MONTHLY":
                 return round(self.pet.monthlyNap / 60, 2)
-        elif self.statType.upper() == "SLEEP":
+        elif statType == "SLEEP":
             if self.statTime.upper() == "DAILY":
                 return round(self.pet.dailySleep / 60, 2)
             elif self.statTime.upper() == "WEEKLY":
                 return round(self.pet.weeklySleep / 60, 2)
             elif self.statTime.upper() == "MONTHLY":
                 return round(self.pet.monthlySleep / 60, 2)
+        elif statType == "GOAL":
+            if self.statTime.upper() == "DAILY":
+                return self.pet.dailyGoal
+            elif self.statTime.upper() == "WEEKLY":
+                return self.pet.weeklyGoal
+            elif self.statTime.upper() == "MONTHLY":
+                return self.pet.monthlyGoal
         else:
             return None
 
