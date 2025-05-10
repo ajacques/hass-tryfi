@@ -59,28 +59,24 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 class PetDateTimeSensor(CoordinatorEntity, DateTimeEntity):
     def __init__(self, pet: FiPet, coordinator, statType: str):
         super().__init__(coordinator)
-        self.pet = pet
-        self.statType = statType
+        self._pet = pet
+        self._statType = statType
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"{self.pet.name} {self.statType}"
+        return f"{self._pet.name} {self._statType}"
 
     @property
     def unique_id(self):
         """Return the ID of this sensor."""
-        formattedType = self.statType.lower().replace(" ", "-")
-        return f"{self.pet.petId}-{formattedType}"
-
-    @property
-    def pet(self):
-        return self.coordinator.data.getPet(self.petId)
+        formattedType = self._statType.lower().replace(" ", "-")
+        return f"{self._pet.petId}-{formattedType}"
 
     @property
     def native_value(self) -> datetime.datetime | None:
-        if self.statType == "Location Next Update":
-            return self.pet.locationNextEstimatedUpdate
+        if self._statType == "Location Next Update":
+            return self._pet.locationNextEstimatedUpdate
 
 class TryFiBaseSensor(CoordinatorEntity, Entity):
     def __init__(self, hass, base, coordinator):
