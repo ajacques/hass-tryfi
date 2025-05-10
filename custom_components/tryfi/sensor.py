@@ -9,11 +9,14 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime
 )
+from homeassistant.components.datetime import DateTimeEntity
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.icon import icon_for_battery_level
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
+from pytryfi import FiPet
+import datetime
 
 from .const import DOMAIN, SENSOR_STATS_BY_TIME, SENSOR_STATS_BY_TYPE
 
@@ -43,6 +46,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Connection State"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Connected To"))
         new_devices.append(PetGenericSensor(hass, pet, coordinator, "Temperature"))
+        new_devices.append(PetDateTimeSensor(pet, coordinator, "Location Next Update"))
         
 
     for base in tryfi.bases:
@@ -51,6 +55,32 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     if new_devices:
         async_add_devices(new_devices)
 
+
+class PetDateTimeSensor(CoordinatorEntity, DateTimeEntity):
+    def __init__(self, pet: FiPet, coordinator, statType: str):
+        super().__init__(coordinator)
+        self.pet = pet
+        self.statType = statType
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return f"{self.pet.name} {self.statType}"
+
+    @property
+    def unique_id(self):
+        """Return the ID of this sensor."""
+        formattedType = self.statType.lower().replace(" ", "-")
+        return f"{self.pet.petId}-{formattedType}"
+
+    @property
+    def pet(self):
+        return self.coordinator.data.getPet(self.petId)
+
+    @property
+    def native_value(self) -> datetime.datetime | None:
+        if self.statType == "Location Next Update":
+            return self.pet.locationNextEstimatedUpdate
 
 class TryFiBaseSensor(CoordinatorEntity, Entity):
     def __init__(self, hass, base, coordinator):
