@@ -303,7 +303,7 @@ class PetStatsSensor(CoordinatorEntity, Entity):
             return None
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         """Return the unit_of_measurement of the device."""
         if self.statType.upper() == "DISTANCE":
             return UnitOfLength.KILOMETERS
