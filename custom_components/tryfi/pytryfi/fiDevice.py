@@ -8,6 +8,7 @@ LOGGER = logging.getLogger(__name__)
 class FiDevice(object):
     def __init__(self, deviceId):
         self._deviceId = deviceId
+        self._availableLedColors = None
     
     def setDeviceDetailsJSON(self, deviceJSON):
         try:

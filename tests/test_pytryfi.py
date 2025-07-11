@@ -159,7 +159,7 @@ def test_hex_to_rgb_edge_cases():
     with pytest.raises(ValueError):
         hex_to_rgb("#GGGGGG")  # Invalid hex
     
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError):
         hex_to_rgb("")  # Empty string
 
 

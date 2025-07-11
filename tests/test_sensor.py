@@ -59,11 +59,11 @@ async def test_battery_sensor(
     
     sensor = TryFiBatterySensor(mock_coordinator, mock_pet_with_stats)
     
-    assert sensor.unique_id == "test_pet_123_battery_level"
+    assert sensor.unique_id == "test_pet_123-battery"
     assert sensor.name == "Fido Collar Battery Level"
     assert sensor.native_value == 75
     assert sensor.device_info["identifiers"] == {(DOMAIN, "test_pet_123")}
-    assert sensor.icon == "mdi:battery-70"
+    assert sensor.icon == "mdi:battery-80"
     
     # Test charging icon
     mock_pet_with_stats.device.isCharging = True
@@ -85,7 +85,7 @@ async def test_stats_sensor(
     # Test daily steps sensor
     sensor = PetStatsSensor(mock_coordinator, mock_pet_with_stats, "STEPS", "DAILY")
     
-    assert sensor.unique_id == "test_pet_123_daily_steps"
+    assert sensor.unique_id == "test_pet_123-daily-steps"
     assert sensor.name == "Fido Daily Steps"
     assert sensor.native_value == 5000
     assert sensor.icon == "mdi:paw"
@@ -93,7 +93,7 @@ async def test_stats_sensor(
     # Test weekly distance sensor
     sensor = PetStatsSensor(mock_coordinator, mock_pet_with_stats, "DISTANCE", "WEEKLY")
     
-    assert sensor.unique_id == "test_pet_123_weekly_distance"
+    assert sensor.unique_id == "test_pet_123-weekly-distance"
     assert sensor.name == "Fido Weekly Distance"
     assert sensor.native_value == 17.5
     assert sensor.native_unit_of_measurement == UnitOfLength.KILOMETERS
@@ -101,7 +101,7 @@ async def test_stats_sensor(
     # Test monthly sleep sensor
     sensor = PetStatsSensor(mock_coordinator, mock_pet_with_stats, "SLEEP", "MONTHLY")
     
-    assert sensor.unique_id == "test_pet_123_monthly_sleep"
+    assert sensor.unique_id == "test_pet_123-monthly-sleep"
     assert sensor.name == "Fido Monthly Sleep"
     assert sensor.native_value == 14400
     assert sensor.native_unit_of_measurement == UnitOfTime.MINUTES
@@ -116,7 +116,7 @@ async def test_generic_sensor(
     # Test activity type sensor
     sensor = PetGenericSensor(mock_coordinator, mock_pet_with_stats, "Activity Type")
     
-    assert sensor.unique_id == "test_pet_123_activity_type"
+    assert sensor.unique_id == "test_pet_123-activity-type"
     assert sensor.name == "Fido Activity Type"
     assert sensor.native_value == "REST"
     assert sensor.icon == "mdi:run"
@@ -124,7 +124,7 @@ async def test_generic_sensor(
     # Test current place sensor
     sensor = PetGenericSensor(mock_coordinator, mock_pet_with_stats, "Current Place Name")
     
-    assert sensor.unique_id == "test_pet_123_current_place_name"
+    assert sensor.unique_id == "test_pet_123-current-place-name"
     assert sensor.name == "Fido Current Place Name"
     assert sensor.native_value == "Home"
     assert sensor.icon == "mdi:map-marker"
@@ -132,13 +132,13 @@ async def test_generic_sensor(
     # Test connection sensor
     sensor = PetGenericSensor(mock_coordinator, mock_pet_with_stats, "Connected To")
     
-    assert sensor.unique_id == "test_pet_123_connected_to"
+    assert sensor.unique_id == "test_pet_123-connected-to"
     assert sensor.name == "Fido Connected To"
     assert sensor.native_value == "CONNECTED"
     assert sensor.icon == "mdi:wifi"
 
 
-async def test_base_sensor(hass: HomeAssistant, mock_coordinator) -> None:
+async def test_base_sensor(hass: HomeAssistant, mock_coordinator)-> None:
     """Test TryFi base station sensor."""
     mock_base = Mock()
     mock_base.baseId = "base_123"
@@ -153,7 +153,7 @@ async def test_base_sensor(hass: HomeAssistant, mock_coordinator) -> None:
     assert sensor.name == "Living Room Base"
     assert sensor.native_value == "Online"
     assert sensor.icon == "mdi:home-circle"
-    assert sensor.device_info["identifiers"] == {(DOMAIN, "base_base_123")}
+    assert sensor.device_info["identifiers"] == {(DOMAIN, "base_123")}
     
     # Test offline base
     mock_base.online = False

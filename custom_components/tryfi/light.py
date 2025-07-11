@@ -107,7 +107,7 @@ class TryFiPetLight(CoordinatorEntity, LightEntity):
         
         # Build color map from available LED colors
         self._color_map: dict[int, tuple[int, int, int]] = {}
-        if hasattr(pet.device, "availableLedColors"):
+        if pet.device.availableLedColors is not None:
             for led_color in pet.device.availableLedColors:
                 if hasattr(led_color, "ledColorCode") and hasattr(led_color, "hexCode"):
                     self._color_map[led_color.ledColorCode] = hex_to_rgb(led_color.hexCode)
