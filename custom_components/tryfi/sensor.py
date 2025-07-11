@@ -319,7 +319,8 @@ class PetGenericSensor(TryFiSensorBase):
         elif self._sensor_type == "Current Place Address":
             return getattr(pet, "currPlaceAddress", None)
         elif self._sensor_type == "Connected To":
-            return getattr(pet, "connectedTo", None)
+            if hasattr(pet, "device") and pet.device:
+                return getattr(pet.device, "connectedTo", None)
         elif self._sensor_type == "Home City State":
             return getattr(pet, "homeCityState", None)
         elif self._sensor_type == "Gender":

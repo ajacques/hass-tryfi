@@ -164,7 +164,7 @@ async def test_stats_sensor_attributes(
     # Test different stat types
     sensor = PetStatsSensor(mock_coordinator, pet, "DISTANCE", "WEEKLY")
     assert sensor._attr_name == "Test Weekly Distance"
-    assert sensor._attr_unique_id == "test_pet_weekly_distance"
+    assert sensor._attr_unique_id == "test_pet-weekly-distance"
     assert hasattr(sensor, "_attr_native_unit_of_measurement")
     
     # Test with invalid stat type
@@ -202,7 +202,7 @@ async def test_entity_unique_id_format(
 ) -> None:
     """Test unique ID formatting across entity types."""
     expected_formats = {
-        TryFiBatterySensor: "test_pet_battery_level",
+        TryFiBatterySensor: "test_pet-battery",
         TryFiPetTracker: "test_pet-tracker",
         TryFiBatteryChargingBinarySensor: "test_pet-battery-charging",
         TryFiPetLight: "test_pet-light",

@@ -37,12 +37,13 @@ def mock_pet_with_stats():
     pet.name = "Fido"
     pet.photoLink = "https://example.com/photo.jpg"
     pet.activityType = "REST"
-    pet.currentPlaceName = "Home"
-    pet.currentPlaceAddress = "123 Main St"
+    pet.currPlaceName = "Home"
+    pet.currPlaceAddress = "123 Main St"
     pet.device = Mock()
     pet.device.batteryPercent = 75
     pet.device.isCharging = False
-    pet.device.connectionState = "CONNECTED"
+    pet.device.connectedTo = "Cellular"
+    pet.device.connectionState = "ConnectedToCellular"
     pet.stats = {
         "DAILY": {"STEPS": 5000, "DISTANCE": 2.5, "SLEEP": 480, "NAP": 120},
         "WEEKLY": {"STEPS": 35000, "DISTANCE": 17.5, "SLEEP": 3360, "NAP": 840},
