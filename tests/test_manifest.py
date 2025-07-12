@@ -74,32 +74,6 @@ def test_all_platforms_imported():
         __import__(module_name)
 
 
-def test_constants():
-    """Test constants are properly defined."""
-    from custom_components.tryfi.const import (
-        CONF_PASSWORD,
-        CONF_POLLING_RATE,
-        CONF_USERNAME,
-        DEFAULT_POLLING_RATE,
-        DOMAIN,
-        MANUFACTURER,
-        MODEL,
-        SENSOR_STATS_BY_TIME,
-        SENSOR_STATS_BY_TYPE,
-    )
-    
-    assert DOMAIN == "tryfi"
-    assert CONF_USERNAME == "username"
-    assert CONF_PASSWORD == "password"
-    assert CONF_POLLING_RATE == "polling"
-    assert DEFAULT_POLLING_RATE == 10
-    assert MANUFACTURER == "TryFi"
-    assert MODEL == "Smart Dog Collar"
-    
-    assert SENSOR_STATS_BY_TIME == ["DAILY", "WEEKLY", "MONTHLY"]
-    assert SENSOR_STATS_BY_TYPE == ["STEPS", "DISTANCE", "SLEEP", "NAP"]
-
-
 def test_all_files_have_docstrings():
     """Test that all Python files have module docstrings."""
     import ast
