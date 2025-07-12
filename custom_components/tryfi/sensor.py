@@ -44,6 +44,13 @@ SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
         state_class=SensorStateClass.TOTAL_INCREASING,
         icon="mdi:paw",
     ),
+    "goal": SensorEntityDescription(
+        key="goal",
+        name="Goal",
+        native_unit_of_measurement="steps",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:paw",
+    ),
     "distance": SensorEntityDescription(
         key="distance",
         name="Distance",
@@ -344,14 +351,9 @@ class PetGenericSensor(TryFiSensorBase):
             if hasattr(pet, "device") and pet.device:
                 return getattr(pet.device, "moduleId", None)
         elif self._sensor_type == "Signal Strength":
-            connected_to = getattr(pet, "connectedTo", None)
-            if connected_to and "Cellular Signal Strength" in str(connected_to):
-                # Extract percentage from string like "Cellular Signal Strength - 85"
-                try:
-                    strength = int(connected_to.split(" - ")[-1])
-                    return strength
-                except:
-                    pass
+            connected_to = getattr(pet.device, "connectedTo", None)
+            if connected_to and connected_to == "ConnectedToCellular":
+                return pet.device.connectionSignalStrength
             return None
         
         return None

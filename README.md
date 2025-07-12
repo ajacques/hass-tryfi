@@ -2,9 +2,9 @@
 ![beta_badge](https://img.shields.io/badge/maturity-Beta-yellow.png?style=for-the-badge)
 [![](https://img.shields.io/github/release/tryfi/hass-tryfi/all.svg?style=for-the-badge)](https://github.com/tryfi/hass-tryfi/releases)
 ![release_date](https://img.shields.io/github/release-date/tryfi/hass-tryfi.svg?style=for-the-badge)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/tryfi/hass-tryfi)
 [![](https://img.shields.io/github/license/tryfi/hass-tryfi?style=for-the-badge)](LICENSE)
-[![](https://img.shields.io/github/workflow/status/tryfi/hass-tryfi/Validate%20with%20hassfest?style=for-the-badge)](https://github.com/tryfi/hass-tryfi/actions)
+[![](https://img.shields.io/github/actions/workflow/status/tryfi/hass-tryfi/combined.yaml?style=for-the-badge)](https://github.com/tryfi/hass-tryfi/actions)
 
 This allows you to integrate [TryFi](https://tryfi.com) Smart GPS Collars with Home Assistant.
 
@@ -34,9 +34,9 @@ If you would like to donate you can use my TryFi referral code "[395FX4](https:/
 
 ### HACS Install
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tryfi&repository=hass-tryfi&category=integration)
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tryfi&repository=hass-tryfi&category=integration)
 
-1. Click the button above to open this repository in HACS, or manually search for `TryFi` under `Integrations` in the HACS Store tab.
+1. Click the button above to add this repository to HACS, or manually search for `TryFi` under `Integrations` in the HACS Store tab.
 2. Add the [Integration](#configuration) to your HA and configure.
 
 ### Manual Install
