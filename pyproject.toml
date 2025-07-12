@@ -11,8 +11,7 @@ dependencies = [
 [tool.ruff.lint]
 ignore = [
     "F405",
-    "F403",
-    "E722"
+    "E722" # Bare except
 ]
 
 [tool.pytest.ini_options]
