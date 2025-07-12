@@ -253,13 +253,13 @@ class FiPet(object):
     def breed(self):
         return self._breed
     @property
-    def photoLink(self):
+    def photoLink(self) -> str | None:
         return self._photoLink
     @property
-    def currLongitude(self):
+    def currLongitude(self) -> float | None:
         return self._currLongitude
     @property
-    def currLatitude(self):
+    def currLatitude(self) -> float | None:
         return self._currLatitude
     @property
     def currStartTime(self):
