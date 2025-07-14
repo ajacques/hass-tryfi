@@ -44,6 +44,7 @@ def mock_pet_with_stats():
     pet.device.isCharging = False
     pet.device.connectedTo = "Cellular"
     pet.device.connectionState = "ConnectedToCellular"
+    pet.dailySteps = 5000
     pet.stats = {
         "DAILY": {"STEPS": 5000, "DISTANCE": 2.5, "SLEEP": 480, "NAP": 120},
         "WEEKLY": {"STEPS": 35000, "DISTANCE": 17.5, "SLEEP": 3360, "NAP": 840},
