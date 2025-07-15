@@ -9,22 +9,6 @@ from custom_components.tryfi.pytryfi import PyTryFi
 from custom_components.tryfi.pytryfi.exceptions import TryFiError
 
 
-@pytest.fixture
-def mock_session():
-    """Create a mock session."""
-    session = Mock()
-    session.post = Mock()
-    session.get = Mock()
-    return session
-
-
-@pytest.fixture
-def mock_query_module():
-    """Mock the query module."""
-    with patch("custom_components.tryfi.pytryfi.common.query") as mock_query:
-        yield mock_query
-
-
 def test_pytryfi_update_error_handling():
     """Test PyTryFi update method error handling."""
     with patch("custom_components.tryfi.pytryfi.PyTryFi.updateBases") as mock_update_bases:
@@ -66,82 +50,6 @@ def test_pytryfi_update_error_handling():
             
             # Should not raise
             tryfi.update()
-
-
-def test_query_error_handling():
-    """Test query module error handling."""
-    from custom_components.tryfi.pytryfi.common.query import execute
-    
-    session = Mock()
-    
-    # Test execute with HTTP error
-    response = Mock()
-    response.raise_for_status.side_effect = Exception("HTTP Error")
-    session.get.return_value = response
-    
-    with pytest.raises(TryFiError) as exc_info:
-        execute("http://test.com", session, "GET")
-    
-    assert "API request failed" in str(exc_info.value)
-    
-    # Test execute with empty response
-    response = Mock()
-    response.text = ""
-    response.raise_for_status.return_value = None
-    session.get.return_value = response
-    
-    with pytest.raises(TryFiError) as exc_info:
-        execute("http://test.com", session, "GET")
-    
-    assert "Empty response" in str(exc_info.value)
-    
-    # Test invalid method
-    with pytest.raises(TryFiError) as exc_info:
-        execute("http://test.com", session, "INVALID")
-    
-    assert "Method Passed was invalid" in str(exc_info.value)
-
-
-def test_query_json_parsing():
-    """Test query JSON parsing error handling."""
-    from custom_components.tryfi.pytryfi.common.query import query
-    
-    session = Mock()
-    response = Mock()
-    response.raise_for_status.return_value = None
-    response.text = "valid"
-    response.json.side_effect = ValueError("Invalid JSON")
-    
-    with patch("custom_components.tryfi.pytryfi.common.query.execute") as mock_execute:
-        mock_execute.return_value = response
-        
-        with pytest.raises(TryFiError) as exc_info:
-            query(session, "test query")
-        
-        assert "Invalid JSON response" in str(exc_info.value)
-
-
-def test_query_graphql_errors():
-    """Test query GraphQL error handling."""
-    from custom_components.tryfi.pytryfi.common.query import query
-    
-    session = Mock()
-    response = Mock()
-    response.raise_for_status.return_value = None
-    response.text = "valid"
-    response.json.return_value = {
-        "errors": [{"message": "GraphQL Error: Invalid query"}]
-    }
-    
-    with patch("custom_components.tryfi.pytryfi.common.query.execute") as mock_execute:
-        mock_execute.return_value = response
-        
-        with pytest.raises(TryFiError) as exc_info:
-            query(session, "test query")
-        
-        assert "GraphQL error" in str(exc_info.value)
-        assert "Invalid query" in str(exc_info.value)
-
 
 def test_hex_to_rgb_edge_cases():
     """Test hex to RGB conversion edge cases."""

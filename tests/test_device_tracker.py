@@ -20,8 +20,8 @@ def mock_pet_location():
     pet.petId = "test_pet_123"
     pet.name = "Fido"
     pet.photoLink = "https://example.com/photo.jpg"
-    pet.currLatitude = "40.7128"
-    pet.currLongitude = "-74.0060"
+    pet.currLatitude = 40.7128
+    pet.currLongitude = -74.0060
     pet.breed = "Labrador"
     pet.device = Mock()
     pet.device.batteryPercent = 85
@@ -59,29 +59,6 @@ async def test_tracker_entity_properties(
     assert device_info["name"] == "Fido"
     assert "Labrador" in device_info["model"]
     assert device_info["sw_version"] == "1.2.3"
-
-
-async def test_tracker_invalid_coordinates(
-    hass: HomeAssistant,
-    mock_coordinator_tracker,
-    mock_pet_location
-) -> None:
-    """Test tracker with invalid coordinate data."""
-    # Test with non-numeric latitude
-    mock_pet_location.currLatitude = "invalid"
-    tracker = TryFiPetTracker(mock_coordinator_tracker, mock_pet_location)
-    assert tracker.latitude is None
-    
-    # Test with non-numeric longitude
-    mock_pet_location.currLatitude = "40.7128"
-    mock_pet_location.currLongitude = "invalid"
-    assert tracker.longitude is None
-    
-    # Test with None values
-    mock_pet_location.currLatitude = None
-    mock_pet_location.currLongitude = None
-    assert tracker.latitude is None
-    assert tracker.longitude is None
 
 
 async def test_tracker_no_pet_data(

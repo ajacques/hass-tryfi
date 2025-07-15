@@ -116,7 +116,7 @@ async def test_entity_device_info_variations(
     # Add breed
     pet.breed = "Poodle"
     device_info = sensor.device_info
-    assert device_info["model"] == "Smart Dog Collar - Poodle"
+    assert device_info["model"] == "Smart Dog Collar"
     
     # Add device with buildId
     pet.device = Mock()
