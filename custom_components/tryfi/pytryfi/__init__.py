@@ -4,7 +4,7 @@ import requests
 from .fiUser import FiUser
 from .fiPet import FiPet
 from .fiBase import FiBase
-from .graphql import HEADER, API_HOST_URL_BASE, API_LOGIN, getHouseHolds, getBaseList
+from .common.query import API_HOST_URL_BASE, API_LOGIN, getHouseHolds, getBaseList
 from sentry_sdk import capture_exception
 
 
@@ -56,10 +56,6 @@ class PyTryFi(object):
         for p in self._pets:
             petString = petString + f"{p}"
         return f"TryFi Instance - {instString}\n Pets in Home:\n {petString}\n Bases In Home:\n {baseString}"
-    
-    #set the headers for the session
-    def setHeaders(self):
-        self.session.headers = HEADER
 
     #refresh pet details for all pets
     def updatePets(self):
@@ -153,4 +149,4 @@ class PyTryFi(object):
         self._sessionId = response.json()['sessionId']
         LOGGER.debug(f"Successfully logged in. UserId: {self._userId}")
 
-        self.setHeaders()
+        self.session.headers = {'content-type': 'application/json'}

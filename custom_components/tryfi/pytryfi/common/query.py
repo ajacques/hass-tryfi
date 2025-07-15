@@ -10,7 +10,6 @@ LOGGER = logging.getLogger(__name__)
 API_HOST_URL_BASE   = "https://api.tryfi.com"
 API_GRAPHQL         = "/graphql"
 API_LOGIN           = "/auth/login"
-HEADER = {'content-type': 'application/json'}
 
 VAR_PET_ID = "__PET_ID__"
 
