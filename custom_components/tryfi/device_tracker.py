@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from custom_components.tryfi import TryFiDataUpdateCoordinator
 from homeassistant.components.device_tracker import SourceType
 from homeassistant.components.device_tracker.config_entry import TrackerEntity
 from homeassistant.config_entries import ConfigEntry
@@ -12,9 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER, MODEL
-from .pytryfi.fiPet import FiPet
-from .pytryfi import PyTryFi
-from . import TryFiDataUpdateCoordinator
+from .pytryfi import PyTryFi, FiPet, FiBase
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -126,7 +125,7 @@ class TryFiBaseTracker(CoordinatorEntity, TrackerEntity):
     
     _attr_has_entity_name = False
     
-    def __init__(self, coordinator: Any, base: Any) -> None:
+    def __init__(self, coordinator: Any, base: FiBase) -> None:
         """Initialize the base tracker."""
         super().__init__(coordinator)
         self._base_id = base.baseId
@@ -135,7 +134,7 @@ class TryFiBaseTracker(CoordinatorEntity, TrackerEntity):
         self._attr_icon = "mdi:home-map-marker"
     
     @property
-    def base(self) -> Any:
+    def base(self) -> FiBase:
         """Get the base object from coordinator data."""
         return self.coordinator.data.getBase(self._base_id)
     

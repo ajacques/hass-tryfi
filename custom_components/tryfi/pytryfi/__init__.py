@@ -126,9 +126,9 @@ class PyTryFi(object):
     def login(self, username: str, password: str):
         url = API_HOST_URL_BASE + API_LOGIN
         params = {
-                'email' : username,
-                'password' : password,
-            }
+            'email': username,
+            'password': password,
+        }
         
         LOGGER.debug("Logging into TryFi")
         response = self._session.post(url, data=params)
@@ -149,4 +149,4 @@ class PyTryFi(object):
         self._sessionId = response.json()['sessionId']
         LOGGER.debug(f"Successfully logged in. UserId: {self._userId}")
 
-        self.session.headers = {'content-type': 'application/json'}
+        self.session.headers['content-type'] = 'application/json'
