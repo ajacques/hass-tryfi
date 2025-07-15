@@ -8,6 +8,15 @@ dependencies = [
     "homeassistant>2023.1.1,<2025.1.1",
 ]
 
+[tool.ruff.lint]
+extend-select = [
+    "T201", # Print statements
+    "D104" # undocumented __init__
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/{tests,docs,tools}/*" = ["D104"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

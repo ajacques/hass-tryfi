@@ -1,3 +1,5 @@
+"""Library dedicated for interacting with tryfi.com"""
+
 import logging
 import requests
 

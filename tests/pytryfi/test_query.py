@@ -9,6 +9,7 @@ import json
 from custom_components.tryfi.pytryfi.exceptions import RemoteApiError
 from custom_components.tryfi.pytryfi.common.query import query
 
+
 def mock_response(status_code: int) -> Mock:
     response = Mock()
     response.status_code = status_code
@@ -16,9 +17,12 @@ def mock_response(status_code: int) -> Mock:
         response.raise_for_status.return_value = None
         response.ok.return_value = True
     else:
-        response.raise_for_status.side_effect = Exception(f"Fake HTTP Status: {status_code}")
+        response.raise_for_status.side_effect = Exception(
+            f"Fake HTTP Status: {status_code}"
+        )
         response.ok.return_value = False
     return response
+
 
 @pytest.fixture
 def mock_session():
@@ -60,7 +64,7 @@ def test_query_json_parsing():
     session = Mock()
     response = mock_response(200)
     response.text = "valid"
-    response.json.side_effect = json.JSONDecodeError("Invalid JSON", 'doc', 0)
+    response.json.side_effect = json.JSONDecodeError("Invalid JSON", "doc", 0)
     session.get.return_value = response
 
     with pytest.raises(RemoteApiError) as exc_info:
@@ -80,7 +84,6 @@ def test_query_graphql_errors():
     session.get.return_value = response
 
     with pytest.raises(RemoteApiError) as exc_info:
-        print(session.post().json())
         query(session, "test query")
 
     assert "GraphQL error" in str(exc_info.value)

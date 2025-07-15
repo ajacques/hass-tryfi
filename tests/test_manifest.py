@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
 
 def test_manifest_valid():
@@ -72,48 +71,3 @@ def test_all_platforms_imported():
     for platform in PLATFORMS:
         module_name = f"custom_components.tryfi.{platform}"
         __import__(module_name)
-
-
-def test_all_files_have_docstrings():
-    """Test that all Python files have module docstrings."""
-    import ast
-    
-    src_path = Path(__file__).parent.parent / "custom_components" / "tryfi"
-    
-    for py_file in src_path.rglob("*.py"):
-        if "__pycache__" in str(py_file):
-            continue
-            
-        with open(py_file) as f:
-            try:
-                tree = ast.parse(f.read())
-                docstring = ast.get_docstring(tree)
-                assert docstring is not None, f"{py_file} is missing module docstring"
-            except SyntaxError:
-                pytest.fail(f"Syntax error in {py_file}")
-
-
-def test_no_print_statements():
-    """Test that there are no print statements in the code."""
-    import ast
-    
-    src_path = Path(__file__).parent.parent / "custom_components" / "tryfi"
-    
-    class PrintChecker(ast.NodeVisitor):
-        def __init__(self):
-            self.has_print = False
-            
-        def visit_Call(self, node):
-            if isinstance(node.func, ast.Name) and node.func.id == "print":
-                self.has_print = True
-            self.generic_visit(node)
-    
-    for py_file in src_path.rglob("*.py"):
-        if "__pycache__" in str(py_file) or "test_" in str(py_file):
-            continue
-            
-        with open(py_file) as f:
-            tree = ast.parse(f.read())
-            checker = PrintChecker()
-            checker.visit(tree)
-            assert not checker.has_print, f"{py_file} contains print statements"

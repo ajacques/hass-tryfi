@@ -4,7 +4,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from custom_components.tryfi import TryFiDataUpdateCoordinator
 from homeassistant.components.device_tracker import SourceType
 from homeassistant.components.device_tracker.config_entry import TrackerEntity
 from homeassistant.config_entries import ConfigEntry
@@ -143,20 +142,14 @@ class TryFiBaseTracker(CoordinatorEntity, TrackerEntity):
     def latitude(self) -> float | None:
         """Return latitude value of the base station."""
         if self.base and hasattr(self.base, "latitude"):
-            try:
-                return float(self.base.latitude)
-            except (TypeError, ValueError):
-                _LOGGER.debug("Invalid latitude for base %s", self.base.name)
+            return float(self.base.latitude)
         return None
     
     @property
     def longitude(self) -> float | None:
         """Return longitude value of the base station."""
         if self.base and hasattr(self.base, "longitude"):
-            try:
-                return float(self.base.longitude)
-            except (TypeError, ValueError):
-                _LOGGER.debug("Invalid longitude for base %s", self.base.name)
+            return float(self.base.longitude)
         return None
     
     @property
