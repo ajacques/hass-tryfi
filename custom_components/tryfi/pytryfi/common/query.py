@@ -144,7 +144,7 @@ def query(session: requests.Session, qString):
     params = {'query': qString}
     resp = _execute(url, session, params=params)
     if not resp.ok:
-        LOGGER.warning(f"non-okay response: {resp.json()}")
+        LOGGER.warning(f"non-okay response: (first 10 bytes: {resp.text[:10]})")
     if resp.status_code in [401, 403]:
         raise ApiNotAuthorizedError()
     resp.raise_for_status()
