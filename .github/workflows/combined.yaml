@@ -29,7 +29,8 @@ jobs:
         uses: astral-sh/ruff-action@v3
 
       - name: Run tests
-        run: uv run pytest tests
+        # Unshare to prevent any accidental network calls to the real API
+        run: unshare --net uv run pytest tests
 
       - uses: hacs/action@22.5.0
         with:
