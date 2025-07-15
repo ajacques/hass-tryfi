@@ -60,8 +60,8 @@ class FiPet(object):
             else:
                 currentPosition = activityJSON['position']
 
-            self._currLongitude = float(currentPosition['longitude'])
-            self._currLatitude = float(currentPosition['latitude'])
+            self._currLongitude = currentPosition['longitude']
+            self._currLatitude = currentPosition['latitude']
             self._currStartTime = datetime.datetime.fromisoformat(activityJSON['start'].replace('Z', '+00:00'))
 
             if 'place' in activityJSON and activityJSON['place'] is not None:

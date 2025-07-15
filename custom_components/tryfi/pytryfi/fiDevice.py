@@ -44,6 +44,7 @@ class FiDevice(object):
         if 'temperature' in deviceJSON['info']:
             self._temperature = float(deviceJSON['info']['temperature']) / 100 # celcius
         if 'availableLedColors' in deviceJSON:
+            self._availableLedColors = []
             for cString in deviceJSON['availableLedColors']:
                 c = ledColors(int(cString['ledColorCode']),cString['hexCode'], cString['name'] )
                 self._availableLedColors.append(c)
@@ -51,7 +52,7 @@ class FiDevice(object):
     def __str__(self):
         return f"Last Updated - {self.lastUpdated} - Device ID: {self.deviceId} Device Mode: {self.mode} Battery Left: {self.batteryPercent}% LED State: {self.ledOn} Last Connected: {self.connectionStateDate} by: {self.connectionStateType}"
 
-    def setConnectedTo(self, connectedToJSON):
+    def setConnectedTo(self, connectedToJSON) -> str | None:
         connectedToString = ""
         typename = connectedToJSON['__typename']
         self._connectionSignalStrength = None
@@ -76,10 +77,10 @@ class FiDevice(object):
     def mode(self):
         return self._mode
     @property
-    def buildId(self):
+    def buildId(self) -> str | None:
         return self._buildId
     @property
-    def batteryPercent(self):
+    def batteryPercent(self) -> int | None:
         return self._batteryPercent
     @property
     def temperature(self):
@@ -123,10 +124,7 @@ class FiDevice(object):
         return self._lastUpdated
     @property
     def isLost(self) -> bool:
-        if self._mode == PET_MODE_LOST:
-            return True
-        else:
-            return False
+        return self._mode == PET_MODE_LOST
 
     #This is created because if TryFi automatically turns off the LED, the status is still set to true in the api.
     #This will compare the dates to see if the current date/time is greater than the turnoffat time in the api.
