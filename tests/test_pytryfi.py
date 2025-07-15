@@ -1,12 +1,11 @@
 """Test embedded pytryfi functionality."""
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
 from custom_components.tryfi.pytryfi import PyTryFi
-from custom_components.tryfi.pytryfi.exceptions import TryFiError
 
 
 def test_pytryfi_update_error_handling():

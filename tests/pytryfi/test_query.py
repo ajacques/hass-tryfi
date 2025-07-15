@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 import requests
 import json
 
-from custom_components.tryfi.pytryfi import PyTryFi
-from custom_components.tryfi.pytryfi.exceptions import TryFiError, RemoteApiError
+from custom_components.tryfi.pytryfi.exceptions import RemoteApiError
 from custom_components.tryfi.pytryfi.common.query import query
 
 def mock_response(status_code: int) -> Mock:
@@ -39,7 +38,7 @@ def test_query_error_handling():
     response = mock_response(500)
     session.get.return_value = response
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseException):
         query(session, "test-query")
 
 
