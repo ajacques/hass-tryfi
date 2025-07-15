@@ -12,7 +12,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER, MODEL
+from .pytryfi.fiPet import FiPet
 from .pytryfi import PyTryFi
+from . import TryFiDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +50,7 @@ class TryFiPetTracker(CoordinatorEntity, TrackerEntity):
     
     _attr_has_entity_name = False
     
-    def __init__(self, coordinator: Any, pet: Any) -> None:
+    def __init__(self, coordinator: TryFiDataUpdateCoordinator, pet: FiPet) -> None:
         """Initialize the pet tracker."""
         super().__init__(coordinator)
         self._pet_id = pet.petId
@@ -56,7 +58,7 @@ class TryFiPetTracker(CoordinatorEntity, TrackerEntity):
         self._attr_name = f"{pet.name} Tracker"
     
     @property
-    def pet(self) -> Any:
+    def pet(self) -> FiPet:
         """Get the pet object from coordinator data."""
         return self.coordinator.data.getPet(self._pet_id)
     
@@ -64,27 +66,21 @@ class TryFiPetTracker(CoordinatorEntity, TrackerEntity):
     def entity_picture(self) -> str | None:
         """Return the entity picture."""
         if self.pet:
-            return getattr(self.pet, "photoLink", None)
+            return self.pet.photoLink
         return None
     
     @property
     def latitude(self) -> float | None:
         """Return latitude value of the device."""
         if self.pet and hasattr(self.pet, "currLatitude"):
-            try:
-                return float(self.pet.currLatitude)
-            except (TypeError, ValueError):
-                _LOGGER.debug("Invalid latitude for pet %s", self.pet.name)
+            return self.pet.currLatitude
         return None
     
     @property
     def longitude(self) -> float | None:
         """Return longitude value of the device."""
         if self.pet and hasattr(self.pet, "currLongitude"):
-            try:
-                return float(self.pet.currLongitude)
-            except (TypeError, ValueError):
-                _LOGGER.debug("Invalid longitude for pet %s", self.pet.name)
+            return self.pet.currLongitude
         return None
     
     @property

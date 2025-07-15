@@ -9,11 +9,11 @@ LOGGER = logging.getLogger(__name__)
 class FiDevice(object):
     def __init__(self, deviceId):
         self._deviceId = deviceId
+        self._availableLedColors = None
         self._moduleId = None
         self._buildId = None
         self._batteryPercent = None
         self._isCharging = None
-        self._availableLedColors = []
         self._connectedTo = None
         self._connectionSignalStrength = None
         self._temperature = None
