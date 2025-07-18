@@ -28,7 +28,6 @@ def mock_tryfi_api():
         instance.currentUser.email = "test@example.com"
         
         # Setup session
-        title="test@example.com",
         instance.session = Mock()
         
         # Setup pets
