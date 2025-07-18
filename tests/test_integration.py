@@ -28,6 +28,7 @@ def mock_tryfi_api():
         instance.currentUser.email = "test@example.com"
         
         # Setup session
+        title="test@example.com",
         instance.session = Mock()
         
         # Setup pets
@@ -97,7 +98,6 @@ async def test_full_integration_flow(
     # Create config entry
     config_entry = MockConfigEntry(
         domain=DOMAIN,
-        title="test@example.com",
         data={
             "username": "test@example.com",
             "password": "test-password",

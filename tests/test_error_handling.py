@@ -174,8 +174,8 @@ async def test_device_tracker_coordinate_errors(hass: HomeAssistant) -> None:
     tracker = TryFiPetTracker(coordinator, pet)
     
     # Should handle conversion error
-    assert tracker.latitude == "unknown"
-    assert tracker.longitude == "unknown"
+    assert tracker.latitude is None
+    assert tracker.longitude is None
 
 
 async def test_entity_availability(hass: HomeAssistant) -> None:

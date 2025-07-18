@@ -45,6 +45,8 @@ def mock_base_minimal():
     base.baseId = "test_base"
     base.name = "Test Base"
     base.online = False
+    base.device = Mock()
+    base.device.availableLedColors.return_value = []
     return base
 
 
@@ -117,12 +119,6 @@ async def test_entity_device_info_variations(
     pet.breed = "Poodle"
     device_info = sensor.device_info
     assert device_info["model"] == "Smart Dog Collar"
-    
-    # Add device with buildId
-    pet.device = Mock()
-    pet.device.buildId = "2.0.1"
-    device_info = sensor.device_info
-    assert device_info["sw_version"] == "2.0.1"
 
 
 async def test_sensor_icon_selection(

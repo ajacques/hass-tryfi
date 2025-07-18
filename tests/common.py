@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, SOURCE_USER
 
 
 class MockConfigEntry(ConfigEntry):
@@ -26,10 +26,13 @@ class MockConfigEntry(ConfigEntry):
             data=data or {},
             options=options or {},
             entry_id=entry_id,
+            unique_id=entry_id,
+            minor_version=1,
+            discovery_keys=None,
+            source=SOURCE_USER,
             **kwargs,
         )
         self.add_to_hass = Mock()
-        self.state = None
 
 
 def mock_pet_data() -> dict:

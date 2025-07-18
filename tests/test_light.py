@@ -183,7 +183,8 @@ async def test_light_no_pet_data(
     mock_pet = Mock()
     mock_pet.petId = "test_pet"
     mock_pet.name = "Test"
-    mock_pet.device = Mock()
+    mock_pet.device.return_value = Mock()
+    mock_pet.device.availableLedColors = []
     
     light = TryFiPetLight(mock_coordinator_with_light, mock_pet)
     light.hass = hass
