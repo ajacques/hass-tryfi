@@ -14,6 +14,51 @@ from custom_components.tryfi.select import TryFiLostModeSelect
 from custom_components.tryfi.sensor import PetStatsSensor, TryFiBatterySensor
 
 
+async def test_setup_auth_failure(hass: HomeAssistant) -> None:
+    """Test setup with authentication failure."""
+    with patch("custom_components.tryfi.pytryfi.PyTryFi") as mock_pytryfi:
+        # Simulate auth failure - no currentUser
+        mock_pytryfi.login.side_effect = Exception("Failed to login")
+        # mock_pytryfi.return_value = Mock(spec=["update"])
+
+        config_entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={
+                "username": "test@example.com",
+                "password": "wrong-password",
+                "polling": 30,
+            },
+        )
+        config_entry.add_to_hass(hass)
+
+        # Should raise ConfigEntryNotReady
+        with pytest.raises(ConfigEntryNotReady):
+            await hass.config_entries.async_setup(config_entry.entry_id)
+
+
+async def test_setup_exception(
+    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test setup with PyTryFi initialization exception."""
+
+    def throw_error(x, y, z):
+        raise Exception("Failed to login")
+
+    monkeypatch.setattr(PyTryFi, "login", throw_error)
+    config_entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            "username": "test@example.com",
+            "password": "test-password",
+            "polling": 30,
+        },
+    )
+    config_entry.add_to_hass(hass)
+
+    with pytest.raises(ConfigEntryNotReady):
+        await hass.config_entries.async_setup(config_entry.entry_id)
+
+
 async def test_coordinator_update_failure(hass: HomeAssistant) -> None:
     """Test coordinator handling update failures."""
     mock_tryfi = Mock()

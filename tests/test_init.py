@@ -43,6 +43,26 @@ def mock_config_entry():
     )
 
 
+async def test_setup_entry_success(
+    hass: HomeAssistant, mock_pytryfi, mock_config_entry
+) -> None:
+    """Test successful setup."""
+    mock_config_entry.add_to_hass(hass)
+
+    with patch(
+        "custom_components.tryfi.TryFiDataUpdateCoordinator"
+    ) as mock_coordinator_class:
+        mock_coordinator = mock_coordinator_class.return_value
+        mock_coordinator.async_config_entry_first_refresh = AsyncMock()
+
+        assert await async_setup_entry(hass, mock_config_entry)
+        assert mock_config_entry.state == ConfigEntryState.LOADED
+
+        # Verify coordinator was created and stored
+        assert DOMAIN in hass.data
+        assert mock_config_entry.entry_id in hass.data[DOMAIN]
+
+
 async def test_setup_entry_auth_failed(hass: HomeAssistant, mock_config_entry) -> None:
     """Test setup when auth fails."""
     mock_config_entry.add_to_hass(hass)
@@ -65,6 +85,26 @@ async def test_setup_entry_exception(hass: HomeAssistant, mock_config_entry) -> 
     ):
         with pytest.raises(ConfigEntryNotReady):
             await async_setup_entry(hass, mock_config_entry)
+
+
+async def test_unload_entry(
+    hass: HomeAssistant, mock_pytryfi, mock_config_entry
+) -> None:
+    """Test unloading entry."""
+    mock_config_entry.add_to_hass(hass)
+
+    # Setup entry first
+    with patch(
+        "custom_components.tryfi.TryFiDataUpdateCoordinator"
+    ) as mock_coordinator_class:
+        mock_coordinator = mock_coordinator_class.return_value
+        mock_coordinator.async_config_entry_first_refresh = AsyncMock()
+
+        await async_setup_entry(hass, mock_config_entry)
+
+        # Now unload
+        assert await async_unload_entry(hass, mock_config_entry)
+        assert mock_config_entry.entry_id not in hass.data[DOMAIN]
 
 
 async def test_coordinator_update_success(hass: HomeAssistant, mock_pytryfi) -> None:
