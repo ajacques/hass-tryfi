@@ -6,6 +6,7 @@ __pycache__
 
 # Local test files
 test_dir/
+.coverage
 
 # API exploration and research files  
 device_info_analysis.py
