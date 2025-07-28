@@ -7,11 +7,15 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
+from custom_components.tryfi.const import DOMAIN
 from custom_components.tryfi.coordinator import TryFiDataUpdateCoordinator
 from custom_components.tryfi.light import TryFiPetLight
+from custom_components.tryfi.pytryfi import PyTryFi
 from custom_components.tryfi.select import TryFiLostModeSelect
 from custom_components.tryfi.sensor import PetStatsSensor, TryFiBatterySensor
+from tests.common import MockConfigEntry
 
 
 async def test_setup_auth_failure(hass: HomeAssistant) -> None:
