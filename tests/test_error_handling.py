@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.config_entries import ConfigEntryNotReady
 
 from custom_components.tryfi.const import DOMAIN
 from custom_components.tryfi.coordinator import TryFiDataUpdateCoordinator
