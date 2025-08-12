@@ -61,7 +61,7 @@ class FiPet(object):
 
             self._currLongitude = currentPosition['longitude']
             self._currLatitude = currentPosition['latitude']
-            self._currStartTime = datetime.datetime.fromisoformat(activityJSON['start'].replace('Z', '+00:00'))
+            self._currStartTime = parse_fi_date(activityJSON['start'])
 
             if 'place' in activityJSON and activityJSON['place'] is not None:
                 self._currPlaceName = activityJSON['place']['name']
