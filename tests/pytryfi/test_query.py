@@ -8,30 +8,7 @@ import json
 
 from custom_components.tryfi.pytryfi.exceptions import RemoteApiError
 from custom_components.tryfi.pytryfi.common.query import query
-
-
-def mock_response(status_code: int) -> Mock:
-    response = Mock()
-    response.status_code = status_code
-    if 200 <= status_code <= 299:
-        response.raise_for_status.return_value = None
-        response.ok.return_value = True
-    else:
-        response.raise_for_status.side_effect = Exception(
-            f"Fake HTTP Status: {status_code}"
-        )
-        response.ok.return_value = False
-    return response
-
-
-@pytest.fixture
-def mock_session():
-    """Create a mock session."""
-    session = Mock()
-    session.post = Mock()
-    session.get = Mock()
-    return session
-
+from .utils import mock_session, mock_response
 
 def test_query_error_handling():
     """When tryfi.com returns a non-200 response, the error gets bubbled up"""

@@ -10,7 +10,9 @@ from .fiDevice import FiDevice
 from .common.query import API_HOST_URL_BASE, API_LOGIN, getHouseHolds, getBaseList
 from sentry_sdk import capture_exception
 
-
+__all__ = [
+    'FiDevice'
+]
 
 LOGGER = logging.getLogger(__name__)
 

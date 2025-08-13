@@ -13,6 +13,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from custom_components.tryfi import (
     TryFiDataUpdateCoordinator,
     async_setup_entry,
+    async_unload_entry
 )
 from custom_components.tryfi.const import DOMAIN
 
@@ -102,6 +103,7 @@ async def test_unload_entry(
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
 
         await async_setup_entry(hass, mock_config_entry)
+        assert mock_config_entry.state == ConfigEntryState.LOADED
 
         # Now unload
         assert await async_unload_entry(hass, mock_config_entry)
