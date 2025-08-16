@@ -10,6 +10,7 @@ from custom_components.tryfi.pytryfi.exceptions import RemoteApiError
 from custom_components.tryfi.pytryfi.common.query import query
 from .utils import mock_session, mock_response
 
+
 def test_query_error_handling():
     """When tryfi.com returns a non-200 response, the error gets bubbled up"""
 
