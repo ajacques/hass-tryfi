@@ -1,25 +1,17 @@
-from unittest.mock import AsyncMock, Mock, patch
-
-import pytest
-import requests
 import responses
 from custom_components.tryfi.pytryfi import PyTryFi
-from tests.pytryfi.utils import mock_response
+from custom_components.tryfi.pytryfi.common.query import REQUEST_GET_HOUSEHOLDS
+from tests.pytryfi.utils import mock_graphql, mock_login_requests
 
 
-def test_pet_with_no_collar(mock_session: requests.Session):
-    # TODO: Get a real requests mocking library. Make this not shit
-    responses.add(
-        responses.GET,
-        "https://api.tryfi.com/test",
+@responses.activate
+def test_pet_with_no_collar():
+    mock_login_requests()
+    
+    mock_graphql(
+        query=REQUEST_GET_HOUSEHOLDS,
         status=200,
-        body={}
-    )
-    response = mock_response(200)
-    response.json.return_value = {
-        'userId': 'userid',
-        'sessionId': 'sessionid',
-        'data': {
+        response = {
             'currentUser': {
                 'userHouseholds': [
                     {
@@ -39,10 +31,8 @@ def test_pet_with_no_collar(mock_session: requests.Session):
                 ]
             }
         }
-    }
-    mock_session.post.return_value = response
-    mock_session.get.return_value = response
+    )
 
-    tryfi = PyTryFi(session=mock_session)
+    tryfi = PyTryFi()
     
     assert tryfi.pets == []

@@ -45,6 +45,11 @@ FRAGMENT_REST_SUMMARY_DETAILS = "fragment RestSummaryDetails on RestSummary {  _
 MUTATION_DEVICE_OPS = "mutation UpdateDeviceOperationParams($input: UpdateDeviceOperationParamsInput!) {  updateDeviceOperationParams(input: $input) {    __typename    ...DeviceDetails  }}"
 MUTATION_SET_LED_COLOR = "mutation SetDeviceLed($moduleId: String!, $ledColorCode: Int!) {  setDeviceLed(moduleId: $moduleId, ledColorCode: $ledColorCode) {    __typename    ...DeviceDetails  }}"
 
+REQUEST_GET_HOUSEHOLDS = QUERY_CURRENT_USER_FULL_DETAIL + FRAGMENT_USER_DETAILS \
+        + FRAGMENT_USER_FULL_DETAILS + FRAGMENT_PET_PROFILE + FRAGMENT_BASE_PET_PROFILE \
+        + FRAGMENT_BASE_DETAILS + FRAGMENT_POSITION_COORDINATES + FRAGMENT_BREED_DETAILS \
+        + FRAGMENT_PHOTO_DETAILS + FRAGMENT_DEVICE_DETAILS + FRAGMENT_LED_DETAILS + FRAGMENT_OPERATIONAL_DETAILS \
+        + FRAGMENT_CONNECTION_STATE_DETAILS
 
 def getUserDetail(session: requests.Session):
     qString = QUERY_CURRENT_USER + FRAGMENT_USER_DETAILS
@@ -53,12 +58,7 @@ def getUserDetail(session: requests.Session):
     return response['data']['currentUser']
 
 def getHouseHolds(session: requests.Session):
-    qString = QUERY_CURRENT_USER_FULL_DETAIL + FRAGMENT_USER_DETAILS \
-        + FRAGMENT_USER_FULL_DETAILS + FRAGMENT_PET_PROFILE + FRAGMENT_BASE_PET_PROFILE \
-        + FRAGMENT_BASE_DETAILS + FRAGMENT_POSITION_COORDINATES + FRAGMENT_BREED_DETAILS \
-        + FRAGMENT_PHOTO_DETAILS + FRAGMENT_DEVICE_DETAILS + FRAGMENT_LED_DETAILS + FRAGMENT_OPERATIONAL_DETAILS \
-        + FRAGMENT_CONNECTION_STATE_DETAILS
-    response = query(session, qString)
+    response = query(session, REQUEST_GET_HOUSEHOLDS)
     LOGGER.debug(f"getHouseHolds: {response}")
     return response['data']['currentUser']['userHouseholds']
 

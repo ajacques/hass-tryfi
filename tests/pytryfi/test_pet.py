@@ -39,5 +39,3 @@ def test_get_sleep(mock_session: requests.Session):
 
     assert pet.dailySleep == 60
     assert pet.dailyNap == 30
-
-def test
