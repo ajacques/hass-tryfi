@@ -27,10 +27,10 @@ class PyTryFi(object):
         self._session = session or requests.Session()
         self._user_agent = "pyTryFi"
         self._username = username
-        #self.login(username, password)
+        self.login(username, password)
 
-        #self._currentUser = FiUser(self._userId)
-        #self._currentUser.setUserDetails(self._session)
+        self._currentUser = FiUser(self._userId)
+        self._currentUser.setUserDetails(self._session)
 
         houses = getHouseHolds(self._session)
         self._pets = []
