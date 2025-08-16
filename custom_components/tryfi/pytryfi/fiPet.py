@@ -151,8 +151,8 @@ class FiPet(object):
             return False
 
     # Update all details regarding this pet
-    def updateAllDetails(self, sessionId: requests.Session):
-        petJson = query.getPetAllInfo(sessionId, self.petId)
+    def updateAllDetails(self, session: requests.Session):
+        petJson = query.getPetAllInfo(session, self.petId)
         self.device.setDeviceDetailsJSON(petJson['device'])
         self.setCurrentLocation(petJson['ongoingActivity'])
         self.setStats(petJson['dailyStepStat'], petJson['weeklyStepStat'], petJson['monthlyStepStat'])
@@ -161,11 +161,11 @@ class FiPet(object):
         self._monthlySleep, self._monthlyNap = self._extractSleep(petJson['monthlySleepStat'])
 
     # set the color code of the led light on the pet collar
-    def setLedColorCode(self, sessionId: requests.Session, colorCode):
+    def setLedColorCode(self, session: requests.Session, colorCode):
         try:
             moduleId = self.device.moduleId
             ledColorCode = int(colorCode)
-            setColorJSON = query.setLedColor(sessionId, moduleId, ledColorCode)
+            setColorJSON = query.setLedColor(session, moduleId, ledColorCode)
             try:  
                 self.device.setDeviceDetailsJSON(setColorJSON['setDeviceLed'])
             except Exception as e:

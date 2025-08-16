@@ -21,14 +21,6 @@ def mock_response(status_code: int) -> Mock:
     return response
 
 
-@pytest.fixture
-def mock_session():
-    """Create a mock session."""
-    session = Mock()
-    session.post = Mock()
-    session.get = Mock()
-    return session
-
 def mock_graphql(query: str, status: int, response: dict):
     url = f"https://api.tryfi.com/graphql?query={urllib.parse.quote_plus(query)}"
     responses.add(
