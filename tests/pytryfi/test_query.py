@@ -8,7 +8,16 @@ import json
 
 from custom_components.tryfi.pytryfi.exceptions import RemoteApiError
 from custom_components.tryfi.pytryfi.common.query import query
-from .utils import mock_session, mock_response
+from tests.pytryfi.utils import mock_response
+
+
+@pytest.fixture
+def mock_session():
+    """Create a mock session."""
+    session = Mock()
+    session.post = Mock()
+    session.get = Mock()
+    return session
 
 
 def test_query_error_handling():
@@ -55,7 +64,6 @@ def test_query_graphql_errors():
     """Test query GraphQL error handling."""
     session = Mock()
     response = mock_response(200)
-    response.text = "valid"
     response.json.return_value = {
         "errors": [{"message": "GraphQL Error: Invalid query"}]
     }

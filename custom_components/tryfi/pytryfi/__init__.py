@@ -11,7 +11,10 @@ from .common.query import API_HOST_URL_BASE, API_LOGIN, getHouseHolds, getBaseLi
 from sentry_sdk import capture_exception
 
 __all__ = [
-    'FiDevice'
+    'FiDevice',
+    'FiPet',
+    'FiUser',
+    'PyTryFi'
 ]
 
 LOGGER = logging.getLogger(__name__)
@@ -19,15 +22,15 @@ LOGGER = logging.getLogger(__name__)
 class PyTryFi(object):
     """base object for TryFi"""
 
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, session: requests.Session = None):
         self._api_host = API_HOST_URL_BASE
-        self._session = requests.Session()
+        self._session = session or requests.Session()
         self._user_agent = "pyTryFi"
         self._username = username
-        self.login(username, password)
+        #self.login(username, password)
 
-        self._currentUser = FiUser(self._userId)
-        self._currentUser.setUserDetails(self._session)
+        #self._currentUser = FiUser(self._userId)
+        #self._currentUser.setUserDetails(self._session)
 
         houses = getHouseHolds(self._session)
         self._pets = []
