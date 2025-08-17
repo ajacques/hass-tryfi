@@ -4,12 +4,12 @@ __pycache__
 .local-docs/
 .claude/
 .ruff_cache/
-.pytest_cache/
 .venv/
 
 # Local test files
 test_dir/
 .coverage
+.pytest_cache/
 
 # API exploration and research files  
 device_info_analysis.py
