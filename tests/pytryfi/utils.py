@@ -1,6 +1,5 @@
 from unittest.mock import Mock
 
-import pytest
 import responses
 import urllib.parse
 

@@ -1,5 +1,4 @@
 from custom_components.tryfi.pytryfi import FiPet, FiDevice
-from unittest.mock import Mock
 from .utils import mock_graphql, GRAPHQL_FIXTURE_PET_ALL_INFO
 
 import responses
