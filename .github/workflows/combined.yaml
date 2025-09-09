@@ -28,6 +28,9 @@ jobs:
       - name: Syntax check source files
         uses: astral-sh/ruff-action@v3
 
+      - name: Lint formatting
+        run: uv run ruff format --check
+
       - name: Type check Python files
         run: uv run ty check custom_components/
 
