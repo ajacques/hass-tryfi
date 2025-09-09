@@ -9,10 +9,7 @@ import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from custom_components.tryfi import (
-    TryFiDataUpdateCoordinator,
-    async_setup_entry
-)
+from custom_components.tryfi import TryFiDataUpdateCoordinator, async_setup_entry
 from custom_components.tryfi.const import DOMAIN
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry

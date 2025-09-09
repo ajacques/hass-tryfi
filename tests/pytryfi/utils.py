@@ -4,7 +4,6 @@ import responses
 import urllib.parse
 
 
-
 def mock_response(status_code: int) -> Mock:
     response = Mock()
     response.status_code = status_code
