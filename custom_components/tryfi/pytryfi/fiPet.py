@@ -217,6 +217,20 @@ class FiPet(object):
         # examples: '46min', '1.5hr', '<1min', '10.1'
         if input.startswith('<'):
             return 0
+        elif " " in input and "hr" in input and "min" in input:
+            parts = input.split()
+            hours = 0
+            minutes = 0
+            for part in parts:
+                if part.endswith("hr"):
+                    hours = float(part.replace("hr", ""))
+                elif part.endswith("min"):
+                    minutes = float(part.replace("min", ""))
+            return round(hours * 60 + minutes)
+        elif input.endswith("min"):
+            return round(float(input.replace("min", "")))
+        elif input.endswith("hr"):
+            return round(float(input.replace("hr", "")) * 60)
         elif input.endswith('min'):
             return round(float(input.replace('min', '')))
         elif input.endswith('hr'):
