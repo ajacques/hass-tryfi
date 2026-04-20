@@ -214,10 +214,10 @@ class FiPet(object):
                 LOGGER.warning(f"Could not fetch {period} behavior trends for {self.name}: {e}")
 
     def _parseBehaviorDuration(self, input: str) -> int:
-        # examples: '46min', '1.5hr', '<1min', '10.1'
-        if input.startswith('<'):
+        # examples: '1hr 5min', '46min', '1.5hr', '<1min', '10.1'
+        if input.startswith("<"):
             return 0
-        elif " " in input and "hr" in input and "min" in input:
+        elif "hr " in input and "min" in input:
             parts = input.split()
             hours = 0
             minutes = 0
@@ -231,10 +231,6 @@ class FiPet(object):
             return round(float(input.replace("min", "")))
         elif input.endswith("hr"):
             return round(float(input.replace("hr", "")) * 60)
-        elif input.endswith('min'):
-            return round(float(input.replace('min', '')))
-        elif input.endswith('hr'):
-            return round(float(input.replace('hr', '')) * 60)
         else:
             return round(float(input))
 
