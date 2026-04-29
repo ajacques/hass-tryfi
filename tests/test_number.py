@@ -10,8 +10,6 @@ from homeassistant.core import HomeAssistant
 
 from custom_components.tryfi.number import TryFiPetWeightNumber
 
-from syrupy.assertion import SnapshotAssertion
-
 
 @pytest.fixture
 def mock_coordinator():
@@ -46,7 +44,6 @@ async def test_weight_number(
     hass: HomeAssistant,
     mock_coordinator,
     mock_pet_with_stats,
-    snapshot: SnapshotAssertion,
 ) -> None:
     """Test TryFi battery sensor."""
     mock_coordinator.data.getPet.return_value = mock_pet_with_stats
