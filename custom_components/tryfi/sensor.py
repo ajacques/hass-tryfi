@@ -104,11 +104,6 @@ SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
         name="Connected To",
         icon="mdi:wifi",
     ),
-    "home_city_state": SensorEntityDescription(
-        key="home_city_state",
-        name="Home City State",
-        icon="mdi:home-city",
-    ),
     "gender": SensorEntityDescription(
         key="gender",
         name="Gender",
@@ -190,7 +185,6 @@ async def async_setup_entry(
                 PetGenericSensor(coordinator, pet, "current_place_name"),
                 PetGenericSensor(coordinator, pet, "current_place_address"),
                 PetGenericSensor(coordinator, pet, "connected_to"),
-                PetGenericSensor(coordinator, pet, "home_city_state"),
                 PetGenericSensor(coordinator, pet, "gender"),
                 PetGenericSensor(coordinator, pet, "weight"),
                 PetGenericSensor(coordinator, pet, "age"),
@@ -448,8 +442,6 @@ class PetGenericSensor(TryFiSensorBase):
         elif self._key == "connected_to":
             if hasattr(pet, "device") and pet.device:
                 return getattr(pet.device, "connectedTo", None)
-        elif self._key == "home_city_state":
-            return getattr(pet, "homeCityState", None)
         elif self._key == "gender":
             return getattr(pet, "gender", None)
         elif self._key == "weight":
