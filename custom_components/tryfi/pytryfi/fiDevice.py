@@ -75,11 +75,9 @@ class FiDevice(object):
         typename = connectedToJSON["__typename"]
         self._connectionSignalStrength = None
         if typename == "ConnectedToUser":
-            connectedToString = (
-                connectedToJSON["user"]["firstName"]
-                + " "
-                + connectedToJSON["user"]["lastName"]
-            )
+            first = connectedToJSON["user"].get("firstName") or ""
+            last = connectedToJSON["user"].get("lastName") or ""
+            connectedToString = f"{first} {last}".strip()
         elif typename == "ConnectedToCellular":
             connectedToString = "Cellular"
             self._connectionSignalStrength = connectedToJSON["signalStrengthPercent"]
