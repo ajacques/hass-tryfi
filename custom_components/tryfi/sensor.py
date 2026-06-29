@@ -700,12 +700,10 @@ class PetBehaviorSensor(TryFiSensorBase):
             self._attr_device_class = SensorDeviceClass.DURATION
             self._attr_state_class = SensorStateClass.MEASUREMENT
 
-        # Set device info
+        # Set device info — only identifiers, so the device registry
+        # merges with the main pet device instead of overriding model/name
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, pet.petId)},
-            name=pet.name,
-            manufacturer="TryFi",
-            model="Series 3+ Collar",
         )
 
     def _fipet_attr_name(self) -> str:

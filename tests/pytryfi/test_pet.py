@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from custom_components.tryfi.pytryfi import FiPet, FiDevice
 from .utils import mock_graphql, GRAPHQL_FIXTURE_PET_ALL_INFO, REQ_PET_ALL_INFO
 
@@ -118,3 +120,35 @@ def test_update_behavior_stats():
     assert pet.dailyLickingDuration == 6
     assert pet.dailyScratchingCount == 4
     assert pet.dailyScratchingDuration == 1
+
+
+@responses.activate
+def test_set_weight_success():
+    """Test setWeight updates the pet's weight via the API."""
+    responses.add(
+        method=responses.POST,
+        url="https://api.tryfi.com/graphql",
+        status=200,
+        json={"data": {"updatePet": {"__typename": "BasePet", "weight": 14.2}}},
+    )
+
+    pet = FiPet("test-pet")
+    pet._name = "Buddy"
+    result = pet.setWeight(requests.Session(), 14.2)
+
+    assert result is True
+    assert pet.weight == 14.2
+
+
+def test_set_weight_failure():
+    """Test setWeight returns False on API failure."""
+    pet = FiPet("test-pet")
+    pet._name = "Buddy"
+
+    with patch(
+        "custom_components.tryfi.pytryfi.common.query.updatePetWeight",
+        side_effect=Exception("API error"),
+    ):
+        result = pet.setWeight(requests.Session(), 10.0)
+
+    assert result is False
