@@ -14,6 +14,7 @@ from homeassistant.components.number import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfMass
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -106,10 +107,17 @@ class TryFiPetWeightNumber(CoordinatorEntity, NumberEntity):
         return device_info
 
     async def async_set_native_value(self, value: float) -> None:
-        """Update the weight value."""
-        # Note: The API doesn't appear to have a method to update weight
-        # This would need to be implemented if the API supports it
-        _LOGGER.warning(
-            "Weight update not implemented - API method needed for pet %s",
-            self.pet.name if self.pet else "unknown",
-        )
+        """Update the weight value via the TryFi API."""
+        pet = self.pet
+        if not pet:
+            _LOGGER.warning("Cannot set weight: pet not available")
+            return
+
+        try:
+            await self.hass.async_add_executor_job(
+                pet.setWeight, self.coordinator.data.session, float(value)
+            )
+            await self.coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Failed to set weight for %s: %s", pet.name, err)
+            raise HomeAssistantError(f"Failed to set weight for {pet.name}") from err

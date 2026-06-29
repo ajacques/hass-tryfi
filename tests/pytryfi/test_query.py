@@ -8,7 +8,7 @@ import requests
 import json
 
 from custom_components.tryfi.pytryfi.exceptions import RemoteApiError
-from custom_components.tryfi.pytryfi.common.query import query
+from custom_components.tryfi.pytryfi.common.query import query, updatePetWeight
 from tests.pytryfi.utils import mock_graphql, mock_response
 
 
@@ -67,3 +67,22 @@ def test_query_graphql_errors():
 
     assert "GraphQL error" in str(exc_info.value)
     assert "Invalid query" in str(exc_info.value)
+
+
+@responses.activate
+def test_update_pet_weight():
+    """Test updatePetWeight sends mutation and returns updated weight."""
+    responses.add(
+        method=responses.POST,
+        url="https://api.tryfi.com/graphql",
+        status=200,
+        json={"data": {"updatePet": {"__typename": "BasePet", "weight": 15.5}}},
+    )
+
+    result = updatePetWeight(requests.Session(), "pet-123", 15.5)
+    assert result == 15.5
+
+    body = json.loads(responses.calls[0].request.body)
+    assert body["variables"]["input"]["id"] == "pet-123"
+    assert body["variables"]["input"]["weight"] == 15.5
+    assert "UpdatePetInput" in body["query"]

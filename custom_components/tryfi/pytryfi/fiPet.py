@@ -325,6 +325,15 @@ class FiPet(object):
                 setattr(self, f"_{prefix}{attr_suffix}Count", events_count)
                 setattr(self, f"_{prefix}{attr_suffix}Duration", duration_minutes)
 
+    def setWeight(self, session: requests.Session, weight_kg: float):
+        try:
+            updated_weight = query.updatePetWeight(session, self.petId, weight_kg)
+            self._weight = float(updated_weight)
+            return True
+        except Exception as e:
+            LOGGER.error(f"Could not update weight for Pet {self.name}.\n{e}")
+            return False
+
     # set the color code of the led light on the pet collar
     def setLedColorCode(self, session: requests.Session, colorCode):
         try:

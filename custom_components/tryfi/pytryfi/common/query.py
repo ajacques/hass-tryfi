@@ -68,6 +68,7 @@ MUTATION_SET_LED_COLOR = "mutation SetDeviceLed($moduleId: String!, $ledColorCod
 
 FRAGMENT_WIFI_NETWORK_DETAILS = "fragment WifiNetworkDetails on WifiNetwork {  ssid  state  addressLabel  isHidden  position {    latitude    longitude  }}"
 QUERY_GET_WIFI_NETWORKS = "query GetWifiNetworks($householdId: ID!) {  household(id: $householdId) {    id    wifiNetworks {      credentialPackHash      maximumNetworkCount      networks {        __typename        ...WifiNetworkDetails      }    }  }}"
+MUTATION_UPDATE_PET = "mutation UpdatePet($input: UpdatePetInput!) { updatePet(input: $input) { __typename ...BasePetProfile } }"
 MUTATION_UPDATE_WIFI_NETWORK = "mutation UpdateWifiNetwork($input: UpdateWifiNetworkInput!) {  updateWifiNetwork(input: $input) {    __typename    ...WifiNetworkDetails  }}"
 
 REQUEST_FRAGMENTS_PET_ALL_INFO = (
@@ -199,6 +200,18 @@ def getPetHealthTrends(session: requests.Session, petId: str, period: str = "DAY
     LOGGER.debug(f"getPetHealthTrends: {response}")
     return response["data"]["getPetHealthTrendsForPet"]
 
+
+def updatePetWeight(session: requests.Session, petId: str, weight_kg: float):
+    qString = MUTATION_UPDATE_PET + FRAGMENT_BASE_PET_PROFILE + FRAGMENT_BREED_DETAILS + FRAGMENT_PHOTO_DETAILS
+    qVariables = {
+        "input": {
+            "id": petId,
+            "weight": weight_kg
+        }
+    }
+    response = mutation(session, qString, qVariables)
+    LOGGER.debug(f"updatePetWeight: {response}")
+    return response['data']['updatePet']['weight']
 
 def setLedColor(session: requests.Session, deviceId: str, ledColorCode):
     qString = (
