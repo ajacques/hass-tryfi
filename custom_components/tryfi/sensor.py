@@ -823,11 +823,9 @@ class PetBehaviorSensor(TryFiSensorBase):
         # Build attribute name
         attr_name = self._fipet_attr_name()
 
-        # Get the value from the pet object
-        value = getattr(pet, attr_name, None)
-
-        # Return 0 if None
-        return value if value is not None else 0
+        # Get the value from the pet object. None means the collar does not
+        # report this behavior, which is unknown rather than a real zero.
+        return getattr(pet, attr_name, None)
 
 
 class TryFiWifiNetworkSensor(TryFiSensorBase):

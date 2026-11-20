@@ -497,9 +497,42 @@ def test_pet_set_behavior_stats_from_trends_edge_cases():
     ]
 
     pet.setBehaviorStatsFromTrends(behavior_trends, "DAY")
-    assert pet.dailyBarkingCount == 0
+    assert pet.dailyBarkingCount is None
+    assert pet.dailyBarkingDuration is None
     assert pet.dailyEatingCount == 5
     assert pet.dailyEatingDuration == 0
+    # Behaviors absent from the response are unknown, not zero
+    assert pet.dailyDrinkingCount is None
+    assert pet.dailyDrinkingDuration is None
+
+
+def test_pet_behavior_stats_dict_handles_missing_data():
+    """Reset/absent periods and behaviors resolve to None instead of raising."""
+    pet = FiPet("test-pet")
+
+    # Defaults before any trends are loaded
+    assert pet.weeklyBarkingCount is None
+    assert pet.dailyBarkingDuration is None
+
+    pet.setBehaviorStatsFromTrends(
+        [{"title": "Barking", "summaryComponents": {"eventsSummary": "3 events"}}],
+        "DAY",
+    )
+    assert pet._behaviorStats["daily"]["barking"] == {"count": 3, "duration": 0}
+    assert pet.dailyBarkingDuration == 0
+
+    # A later response without the behavior resets it to unknown
+    pet.setBehaviorStatsFromTrends([], "DAY")
+    assert pet.dailyBarkingCount is None
+
+    # Unknown periods/behaviors/metrics are looked up safely
+    assert pet._behaviorValue("yearly", "barking", "count") is None
+    assert pet._behaviorValue("daily", "howling", "count") is None
+    assert pet._behaviorValue("daily", "barking", "average") is None
+
+    # Empty/None trend lists and unknown period fall back to daily
+    pet.setBehaviorStatsFromTrends(None, "YEAR")
+    assert pet.dailyBarkingCount is None
 
 
 def test_pet_update_behavior_stats_exception():
@@ -687,55 +720,49 @@ def test_pet_properties_and_getters_coverage():
     assert pet.photoLink == ""
 
     # Test all behavior metric properties
-    pet._weeklyBarkingCount = 10
-    pet._weeklyBarkingDuration = 20
-    pet._monthlyBarkingCount = 30
-    pet._monthlyBarkingDuration = 60
-
-    pet._weeklyLickingCount = 11
-    pet._weeklyLickingDuration = 21
-    pet._monthlyLickingCount = 31
-    pet._monthlyLickingDuration = 61
-
-    pet._weeklyScratchingCount = 12
-    pet._weeklyScratchingDuration = 22
-    pet._monthlyScratchingCount = 32
-    pet._monthlyScratchingDuration = 62
-
-    pet._weeklyEatingCount = 13
-    pet._weeklyEatingDuration = 23
-    pet._monthlyEatingCount = 33
-    pet._monthlyEatingDuration = 63
-
-    pet._weeklyDrinkingCount = 14
-    pet._weeklyDrinkingDuration = 24
-    pet._monthlyDrinkingCount = 34
-    pet._monthlyDrinkingDuration = 64
+    pet.setBehaviorStatsFromTrends(
+        [
+            {"title": "Barking", "summaryComponents": {"eventsSummary": "10 events"}},
+            {"title": "Licking", "summaryComponents": {"eventsSummary": "11 events"}},
+            {
+                "title": "Scratching",
+                "summaryComponents": {"eventsSummary": "12 events"},
+            },
+            {"title": "Eating", "summaryComponents": {"eventsSummary": "13 events"}},
+            {"title": "Drinking", "summaryComponents": {"eventsSummary": "14 events"}},
+        ],
+        "WEEK",
+    )
+    pet.setBehaviorStatsFromTrends(
+        [
+            {"title": "Barking", "summaryComponents": {"eventsSummary": "30 events"}},
+            {"title": "Licking", "summaryComponents": {"eventsSummary": "31 events"}},
+            {
+                "title": "Scratching",
+                "summaryComponents": {"eventsSummary": "32 events"},
+            },
+            {"title": "Eating", "summaryComponents": {"eventsSummary": "33 events"}},
+            {"title": "Drinking", "summaryComponents": {"eventsSummary": "34 events"}},
+        ],
+        "MONTH",
+    )
+    assert pet._behaviorStats["weekly"]["barking"]["count"] == 10
+    assert pet._behaviorStats["monthly"]["drinking"]["count"] == 34
 
     assert pet.weeklyBarkingCount == 10
-    assert pet.weeklyBarkingDuration == 20
     assert pet.monthlyBarkingCount == 30
-    assert pet.monthlyBarkingDuration == 60
 
     assert pet.weeklyLickingCount == 11
-    assert pet.weeklyLickingDuration == 21
     assert pet.monthlyLickingCount == 31
-    assert pet.monthlyLickingDuration == 61
 
     assert pet.weeklyScratchingCount == 12
-    assert pet.weeklyScratchingDuration == 22
     assert pet.monthlyScratchingCount == 32
-    assert pet.monthlyScratchingDuration == 62
 
     assert pet.weeklyEatingCount == 13
-    assert pet.weeklyEatingDuration == 23
     assert pet.monthlyEatingCount == 33
-    assert pet.monthlyEatingDuration == 63
 
     assert pet.weeklyDrinkingCount == 14
-    assert pet.weeklyDrinkingDuration == 24
     assert pet.monthlyDrinkingCount == 34
-    assert pet.monthlyDrinkingDuration == 64
 
 
 class TestBehaviorAuthBackoff:

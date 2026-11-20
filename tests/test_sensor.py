@@ -409,12 +409,12 @@ async def test_pet_behavior_sensor(
     assert sensor.native_unit_of_measurement == UnitOfTime.MINUTES
     assert sensor.device_class == SensorDeviceClass.DURATION
 
-    # Test missing attribute returns 0
+    # Test missing attribute returns None (unknown, not zero)
     delattr(mock_pet_with_stats, "dailyBarkingCount")
     sensor = PetBehaviorSensor(
         mock_coordinator, mock_pet_with_stats, "barking", "count", "daily"
     )
-    assert sensor.native_value == 0
+    assert sensor.native_value is None
 
     # Test pet missing from coordinator
     mock_coordinator.data.getPet.return_value = None

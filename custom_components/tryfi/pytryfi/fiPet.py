@@ -17,6 +17,13 @@ LOGGER = logging.getLogger(__name__)
 BEHAVIOR_AUTH_FAILURE_LIMIT = 3
 BEHAVIOR_AUTH_BACKOFF = datetime.timedelta(minutes=30)
 
+# Behavior trend periods as returned by the API, mapped to the prefix used in
+# the public (legacy) attribute names, e.g. dailyBarkingCount.
+BEHAVIOR_PERIODS = {"DAY": "daily", "WEEK": "weekly", "MONTH": "monthly"}
+
+# Names of the tracked behaviors (also used for the public attribute names).
+BEHAVIORS = ("barking", "licking", "scratching", "eating", "drinking")
+
 
 class FiPet(object):
     def __init__(self, petId):
@@ -36,41 +43,25 @@ class FiPet(object):
         self._locationLastUpdate = None
         self._posAccuracy = None
 
-        # Initialize behavior metrics (Series 3+ only)
-        self._dailyBarkingCount = 0
-        self._dailyBarkingDuration = 0
-        self._weeklyBarkingCount = 0
-        self._weeklyBarkingDuration = 0
-        self._monthlyBarkingCount = 0
-        self._monthlyBarkingDuration = 0
+        # Behavior metrics (Series 3+ only), keyed by period and behavior name:
+        # self._behaviorStats["daily"]["barking"]["count"] -> int
+        # self._behaviorStats["daily"]["barking"]["duration"] -> minutes
+        # Values start as None ("unknown") until the collar reports them.
+        self._behaviorStats = {
+            period: {
+                behavior: {"count": None, "duration": None} for behavior in BEHAVIORS
+            }
+            for period in BEHAVIOR_PERIODS
+        }
 
-        self._dailyLickingCount = 0
-        self._dailyLickingDuration = 0
-        self._weeklyLickingCount = 0
-        self._weeklyLickingDuration = 0
-        self._monthlyLickingCount = 0
-        self._monthlyLickingDuration = 0
+    def _behaviorValue(self, period: str, behavior: str, metric: str) -> int | None:
+        """Return one behavior metric, or None when it is unknown/unsupported.
 
-        self._dailyScratchingCount = 0
-        self._dailyScratchingDuration = 0
-        self._weeklyScratchingCount = 0
-        self._weeklyScratchingDuration = 0
-        self._monthlyScratchingCount = 0
-        self._monthlyScratchingDuration = 0
-
-        self._dailyEatingCount = 0
-        self._dailyEatingDuration = 0
-        self._weeklyEatingCount = 0
-        self._weeklyEatingDuration = 0
-        self._monthlyEatingCount = 0
-        self._monthlyEatingDuration = 0
-
-        self._dailyDrinkingCount = 0
-        self._dailyDrinkingDuration = 0
-        self._weeklyDrinkingCount = 0
-        self._weeklyDrinkingDuration = 0
-        self._monthlyDrinkingCount = 0
-        self._monthlyDrinkingDuration = 0
+        Some collars never report certain behaviors (their trend has no
+        ``eventsSummary``), so those metrics are deliberately left unset and
+        must not be reported as zero.
+        """
+        return self._behaviorStats.get(period, {}).get(behavior, {}).get(metric)
 
     def setPetDetailsJSON(self, petJSON: dict):
         self._name = petJSON.get("name")
@@ -340,31 +331,27 @@ class FiPet(object):
 
     def setBehaviorStatsFromTrends(self, behaviorTrends, period: str = "DAY"):
         """Parse behavior data from health trends API."""
-        PERIOD_PREFIX_MAP = {
-            "DAY": "daily",
-            "WEEK": "weekly",
-            "MONTH": "monthly",
-        }
-        prefix = PERIOD_PREFIX_MAP.get(period, "daily")
+        period = period if period in BEHAVIOR_PERIODS else "DAY"
 
-        # Map from API trend title to our attribute name fragment.
-        # The API no longer exposes a stable `id` on health trends (v3.128.0);
-        # the human-readable `title` is the only identifier returned.
-        BEHAVIOR_MAP = {
-            "barking": "Barking",
-            "licking": "Licking",
-            "cleaning_self": "Licking",
-            "scratching": "Scratching",
-            "eating": "Eating",
-            "drinking": "Drinking",
+        # Map from API trend title to our behavior name. The API no longer
+        # exposes a stable `id` on health trends (v3.128.0); the human-readable
+        # `title` is the only identifier returned.
+        TITLE_MAP = {
+            "barking": "barking",
+            "licking": "licking",
+            "cleaning_self": "licking",
+            "scratching": "scratching",
+            "eating": "eating",
+            "drinking": "drinking",
         }
 
-        # Reset metrics for this period
-        for attr_suffix in set(BEHAVIOR_MAP.values()):
-            setattr(self, f"_{prefix}{attr_suffix}Count", 0)
-            setattr(self, f"_{prefix}{attr_suffix}Duration", 0)
+        # Reset every metric for this period to "unknown" (None). Behaviors the
+        # collar does not report stay None rather than being reported as zero.
+        periodStats = {
+            behavior: {"count": None, "duration": None} for behavior in BEHAVIORS
+        }
 
-        for trend in behaviorTrends:
+        for trend in behaviorTrends or []:
             if not isinstance(trend, dict):
                 LOGGER.warning(
                     f"Found non-dict item ('{type(trend)}') in behaviorTrends. Skipping."
@@ -372,15 +359,15 @@ class FiPet(object):
                 continue
 
             title = trend.get("title", "")
-            summary = trend.get("summaryComponents", {})
+            summary = trend.get("summaryComponents") or {}
 
             # Extract events count
             events_summary = summary.get("eventsSummary")
-            events_count = 0
             if events_summary is None:
                 # This will be None when the collar doesn't support the stat
                 continue
-            if events_summary and "event" in events_summary:
+            events_count = 0
+            if events_summary:
                 events_count = round(float(events_summary.split()[0]))
 
             # Extract duration
@@ -389,12 +376,15 @@ class FiPet(object):
             if duration_summary:
                 duration_minutes = self._parseBehaviorDuration(duration_summary)
 
-            # Identify the behavior by its title (e.g. "Barking" -> "Barking")
-            behavior_key = title.strip().lower()
-            attr_suffix = BEHAVIOR_MAP.get(behavior_key)
-            if attr_suffix:
-                setattr(self, f"_{prefix}{attr_suffix}Count", events_count)
-                setattr(self, f"_{prefix}{attr_suffix}Duration", duration_minutes)
+            # Identify the behavior by its title (e.g. "Barking" -> "barking")
+            behavior = TITLE_MAP.get(title.strip().lower())
+            if behavior:
+                periodStats[behavior] = {
+                    "count": events_count,
+                    "duration": duration_minutes,
+                }
+
+        self._behaviorStats[BEHAVIOR_PERIODS[period]] = periodStats
 
     def setWeight(self, session: requests.Session, weight_kg: float):
         try:
@@ -655,123 +645,129 @@ class FiPet(object):
     def getMonthlyDistance(self):
         return self.monthlyTotalDistance
 
-    # Behavior properties (Series 3+ only)
+    # Behavior properties (Series 3+ only). Each returns None while the
+    # value is unknown, e.g. when the collar does not report that behavior.
+    # Barking
     @property
-    def dailyBarkingCount(self):
-        return self._dailyBarkingCount
+    def dailyBarkingCount(self) -> int | None:
+        return self._behaviorValue("daily", "barking", "count")
 
     @property
-    def dailyBarkingDuration(self):
-        return self._dailyBarkingDuration
+    def weeklyBarkingCount(self) -> int | None:
+        return self._behaviorValue("weekly", "barking", "count")
 
     @property
-    def weeklyBarkingCount(self):
-        return self._weeklyBarkingCount
+    def monthlyBarkingCount(self) -> int | None:
+        return self._behaviorValue("monthly", "barking", "count")
 
     @property
-    def weeklyBarkingDuration(self):
-        return self._weeklyBarkingDuration
+    def dailyBarkingDuration(self) -> int | None:
+        return self._behaviorValue("daily", "barking", "duration")
 
     @property
-    def monthlyBarkingCount(self):
-        return self._monthlyBarkingCount
+    def weeklyBarkingDuration(self) -> int | None:
+        return self._behaviorValue("weekly", "barking", "duration")
 
     @property
-    def monthlyBarkingDuration(self):
-        return self._monthlyBarkingDuration
+    def monthlyBarkingDuration(self) -> int | None:
+        return self._behaviorValue("monthly", "barking", "duration")
+
+    # Licking
+    @property
+    def dailyLickingCount(self) -> int | None:
+        return self._behaviorValue("daily", "licking", "count")
 
     @property
-    def dailyLickingCount(self):
-        return self._dailyLickingCount
+    def weeklyLickingCount(self) -> int | None:
+        return self._behaviorValue("weekly", "licking", "count")
 
     @property
-    def dailyLickingDuration(self):
-        return self._dailyLickingDuration
+    def monthlyLickingCount(self) -> int | None:
+        return self._behaviorValue("monthly", "licking", "count")
 
     @property
-    def weeklyLickingCount(self):
-        return self._weeklyLickingCount
+    def dailyLickingDuration(self) -> int | None:
+        return self._behaviorValue("daily", "licking", "duration")
 
     @property
-    def weeklyLickingDuration(self):
-        return self._weeklyLickingDuration
+    def weeklyLickingDuration(self) -> int | None:
+        return self._behaviorValue("weekly", "licking", "duration")
 
     @property
-    def monthlyLickingCount(self):
-        return self._monthlyLickingCount
+    def monthlyLickingDuration(self) -> int | None:
+        return self._behaviorValue("monthly", "licking", "duration")
+
+    # Scratching
+    @property
+    def dailyScratchingCount(self) -> int | None:
+        return self._behaviorValue("daily", "scratching", "count")
 
     @property
-    def monthlyLickingDuration(self):
-        return self._monthlyLickingDuration
+    def weeklyScratchingCount(self) -> int | None:
+        return self._behaviorValue("weekly", "scratching", "count")
 
     @property
-    def dailyScratchingCount(self):
-        return self._dailyScratchingCount
+    def monthlyScratchingCount(self) -> int | None:
+        return self._behaviorValue("monthly", "scratching", "count")
 
     @property
-    def dailyScratchingDuration(self):
-        return self._dailyScratchingDuration
+    def dailyScratchingDuration(self) -> int | None:
+        return self._behaviorValue("daily", "scratching", "duration")
 
     @property
-    def weeklyScratchingCount(self):
-        return self._weeklyScratchingCount
+    def weeklyScratchingDuration(self) -> int | None:
+        return self._behaviorValue("weekly", "scratching", "duration")
 
     @property
-    def weeklyScratchingDuration(self):
-        return self._weeklyScratchingDuration
+    def monthlyScratchingDuration(self) -> int | None:
+        return self._behaviorValue("monthly", "scratching", "duration")
+
+    # Eating
+    @property
+    def dailyEatingCount(self) -> int | None:
+        return self._behaviorValue("daily", "eating", "count")
 
     @property
-    def monthlyScratchingCount(self):
-        return self._monthlyScratchingCount
+    def weeklyEatingCount(self) -> int | None:
+        return self._behaviorValue("weekly", "eating", "count")
 
     @property
-    def monthlyScratchingDuration(self):
-        return self._monthlyScratchingDuration
+    def monthlyEatingCount(self) -> int | None:
+        return self._behaviorValue("monthly", "eating", "count")
 
     @property
-    def dailyEatingCount(self):
-        return self._dailyEatingCount
+    def dailyEatingDuration(self) -> int | None:
+        return self._behaviorValue("daily", "eating", "duration")
 
     @property
-    def dailyEatingDuration(self):
-        return self._dailyEatingDuration
+    def weeklyEatingDuration(self) -> int | None:
+        return self._behaviorValue("weekly", "eating", "duration")
 
     @property
-    def weeklyEatingCount(self):
-        return self._weeklyEatingCount
+    def monthlyEatingDuration(self) -> int | None:
+        return self._behaviorValue("monthly", "eating", "duration")
+
+    # Drinking
+    @property
+    def dailyDrinkingCount(self) -> int | None:
+        return self._behaviorValue("daily", "drinking", "count")
 
     @property
-    def weeklyEatingDuration(self):
-        return self._weeklyEatingDuration
+    def weeklyDrinkingCount(self) -> int | None:
+        return self._behaviorValue("weekly", "drinking", "count")
 
     @property
-    def monthlyEatingCount(self):
-        return self._monthlyEatingCount
+    def monthlyDrinkingCount(self) -> int | None:
+        return self._behaviorValue("monthly", "drinking", "count")
 
     @property
-    def monthlyEatingDuration(self):
-        return self._monthlyEatingDuration
+    def dailyDrinkingDuration(self) -> int | None:
+        return self._behaviorValue("daily", "drinking", "duration")
 
     @property
-    def dailyDrinkingCount(self):
-        return self._dailyDrinkingCount
+    def weeklyDrinkingDuration(self) -> int | None:
+        return self._behaviorValue("weekly", "drinking", "duration")
 
     @property
-    def dailyDrinkingDuration(self):
-        return self._dailyDrinkingDuration
-
-    @property
-    def weeklyDrinkingCount(self):
-        return self._weeklyDrinkingCount
-
-    @property
-    def weeklyDrinkingDuration(self):
-        return self._weeklyDrinkingDuration
-
-    @property
-    def monthlyDrinkingCount(self):
-        return self._monthlyDrinkingCount
-
-    @property
-    def monthlyDrinkingDuration(self):
-        return self._monthlyDrinkingDuration
+    def monthlyDrinkingDuration(self) -> int | None:
+        return self._behaviorValue("monthly", "drinking", "duration")
