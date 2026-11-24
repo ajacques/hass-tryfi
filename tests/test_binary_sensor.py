@@ -8,12 +8,10 @@ import pytest
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import EntityCategory
 
 from custom_components.tryfi.binary_sensor import (
     TryFiBaseHealthBinarySensor,
     TryFiBatteryChargingBinarySensor,
-    TryFiFirmwareUpdateBinarySensor,
     TryFiWifiNetworkHiddenBinarySensor,
     async_setup_entry,
 )
@@ -84,11 +82,10 @@ async def test_async_setup_entry(
 
     assert async_add_entities.called
     added_entities = async_add_entities.call_args[0][0]
-    # Expect: BatteryCharging, BaseHealth, FirmwareUpdate, WifiNetworkHidden
-    assert len(added_entities) == 4
+    # Expect: BatteryCharging, BaseHealth, WifiNetworkHidden
+    assert len(added_entities) == 3
     assert any(isinstance(e, TryFiBatteryChargingBinarySensor) for e in added_entities)
     assert any(isinstance(e, TryFiBaseHealthBinarySensor) for e in added_entities)
-    assert any(isinstance(e, TryFiFirmwareUpdateBinarySensor) for e in added_entities)
     assert any(
         isinstance(e, TryFiWifiNetworkHiddenBinarySensor) for e in added_entities
     )
@@ -226,44 +223,6 @@ async def test_base_health_binary_sensor(
 
     # Test base missing from coordinator
     mock_coordinator_binary.data.getBase.return_value = None
-    assert sensor.is_on is None
-    assert sensor.device_info == {}
-
-
-async def test_firmware_update_binary_sensor(
-    hass: HomeAssistant, mock_coordinator_binary, mock_pet_charging
-) -> None:
-    """Test firmware update binary sensor."""
-    sensor = TryFiFirmwareUpdateBinarySensor(mock_coordinator_binary, mock_pet_charging)
-
-    assert sensor._attr_unique_id == "test_pet_123-firmware-update"
-    assert sensor._attr_name == "Fido Firmware Update Available"
-    assert sensor._attr_device_class == BinarySensorDeviceClass.UPDATE
-    assert sensor._attr_entity_category == EntityCategory.DIAGNOSTIC
-
-    # Version 1.2.3 != 3.3.0 -> update available
-    assert sensor.is_on is True
-    assert sensor.icon == "mdi:update"
-
-    attrs = sensor.extra_state_attributes
-    assert attrs["current_version"] == "1.2.3"
-    assert attrs["latest_version"] == "3.3.0"
-
-    device_info = sensor.device_info
-    assert device_info["sw_version"] == "1.2.3"
-
-    # Latest version -> update not available
-    mock_pet_charging.device.buildId = "3.3.0"
-    assert sensor.is_on is False
-    assert sensor.icon == "mdi:check-circle"
-
-    # No device or buildId
-    mock_pet_charging.device = None
-    assert sensor.is_on is None
-    assert sensor.extra_state_attributes == {}
-
-    # No pet
-    mock_coordinator_binary.data.getPet.return_value = None
     assert sensor.is_on is None
     assert sensor.device_info == {}
 
